@@ -86,7 +86,7 @@ def do_it_all(video_info: VideoInfo) -> None:
 
 
 def compose_audio(intro, presentation_clip):
-    sound_file_name = "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
+    sound_file_name = f"{resource_dir}/music/bensound-onceagain.mp3"
     fade_duration = 4
     music_clip = AudioFileClip(sound_file_name).subclip(0, intro.duration + fade_duration)
     faded = audio_fadeout.audio_fadeout(music_clip, fade_duration)
@@ -96,20 +96,17 @@ def compose_audio(intro, presentation_clip):
 
 
 def intro_clip(video_info: VideoInfo, size):
-    logo = "/Users/johan/Documents/alpescraft videos 2023/Logo/03-AlpesCraft_Couleurs-M.png"
+    logo = f"{resource_dir}/Logo/03-AlpesCraft_Couleurs-M.png"
     logo_clip = ImageClip(logo).set_position(('center', 0.2), relative=True)
 
-    background_image = "/Users/johan/Documents/alpescraft videos 2023/Logo/bandeau.jpg"
+    background_image = f"{resource_dir}/Logo/bandeau.jpg"
     image_clip = ImageClip(background_image)
     cropped_image = crop.crop(image_clip, x1=0, y1=0, width=1920)
     resized = resize.resize(cropped_image, newsize=(1920, 1080))
     title = (TextClip(video_info.title, fontsize=60, color='white', stroke_width=3)
-                  .set_position(('center', 0.5), relative=True)
-
-                  )
+                  .set_position(('center', 0.5), relative=True))
     presenter_name = (TextClip(video_info.presenter, fontsize=45, color='white', stroke_width=2)
-                      .set_position(('center', 0.60), relative=True)
-                      )
+                      .set_position(('center', 0.60), relative=True))
 
     intro = CompositeVideoClip([resized, logo_clip, title, presenter_name])
 
@@ -120,11 +117,10 @@ def intro_clip(video_info: VideoInfo, size):
 
 
 filename = sys.argv[1]
-
+resource_dir = sys.argv[2]
 
 
 conf_file_contents = ConfFileContents.from_dict(load(open(filename), yaml.Loader))
-
 
 
 if __name__ == '__main__':
