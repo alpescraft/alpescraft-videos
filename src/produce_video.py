@@ -4,11 +4,16 @@ import typing
 from dataclasses import dataclass
 from os import path
 
+import moviepy
 import yaml
+from moviepy.audio.AudioClip import CompositeAudioClip, concatenate_audioclips
+from moviepy.audio.io.AudioFileClip import AudioFileClip
+from moviepy.video.VideoClip import VideoClip
 from yaml import load, dump
-from moviepy.editor import VideoFileClip, TextClip, ImageClip, CompositeVideoClip, concatenate_videoclips
+from moviepy.editor import VideoFileClip, TextClip, ImageClip, CompositeVideoClip, concatenate_videoclips, AudioClip
 from moviepy.video import fx
 from moviepy.video.fx import crop, resize
+from moviepy.audio.fx import audio_fadeout
 
 
 """
@@ -68,19 +73,26 @@ def do_it_all(video_info: VideoInfo) -> None:
     print("start " + str(start))
     presentation_clip: VideoFileClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
         .subclip(start, start + 10)
-    # Make the text. Many more options are available.
-
 
     intro = intro_clip(video_info, presentation_clip.size)
 
+    full_audio = compose_audio(intro, presentation_clip)
+
     clip = presentation_clip.set_duration(10)
-    intro_transition = concatenate_videoclips([intro.crossfadeout(2), clip.crossfadein(2)], method="compose")
+    full_video = concatenate_videoclips([intro.crossfadeout(2), clip.crossfadein(2)],
+                                        method="chain").set_audio(full_audio)
 
-    # for i, video in enumerate(video_sections):
-    #     video.write_videofile(str(i)+ ".mp4",  fps=10, codec='libx264')
+    full_video.write_videofile(video_info.output_file, fps=25, codec='libx264')  # Many options...
 
-    # result = concatenate_videoclips(video_sections)
-    intro_transition.write_videofile(video_info.output_file, fps=25, codec='libx264')  # Many options...
+
+def compose_audio(intro, presentation_clip):
+    sound_file_name = "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
+    fade_duration = 4
+    music_clip = AudioFileClip(sound_file_name).subclip(0, intro.duration + fade_duration)
+    faded = audio_fadeout.audio_fadeout(music_clip, fade_duration)
+    presentation_audio = presentation_clip.audio.set_start(intro.duration)
+    full_audio = CompositeAudioClip([faded, presentation_audio])
+    return full_audio
 
 
 def intro_clip(video_info: VideoInfo, size):
@@ -98,7 +110,9 @@ def intro_clip(video_info: VideoInfo, size):
     presenter_name = (TextClip(video_info.presenter, fontsize=45, color='white', stroke_width=2)
                       .set_position(('center', 0.60), relative=True)
                       )
+
     intro = CompositeVideoClip([resized, logo_clip, title, presenter_name])
+
     title_duration = 5
 
     return intro.set_duration(title_duration)
