@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "alpescraft-videos"
+version = "0.1.0"
+description = ""
+authors = ["Johan Martinsson <jma@notsodark.com>"]
+readme = "README.md"
+packages = [{include = "alpescraft_videos"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+moviepy = "^1.0.3"
+pytest = "^7.4.0"
+pyaml = "^23.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
