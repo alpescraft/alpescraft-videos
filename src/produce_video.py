@@ -71,23 +71,27 @@ def do_it_all(video_info: VideoInfo) -> None:
     clips = video_info.conf_file_contents.clip
     start = clips[0].start_seconds()
     print("start " + str(start))
-    presentation_clip: VideoFileClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
-        .subclip(start, start + 10)
+    max_duration_main_clip = 10
+    presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
+        .subclip(start, start + max_duration_main_clip)
 
     intro = intro_clip(video_info, presentation_clip.size)
 
     full_audio = compose_audio(intro, presentation_clip)
 
-    clip = presentation_clip.set_duration(10)
-    full_video = concatenate_videoclips([intro.crossfadeout(2), clip.crossfadein(2)],
-                                        method="chain").set_audio(full_audio)
+    # speed trick: use compose for fade and avoid it for speed for the rest of the video
+    first_part = concatenate_videoclips([intro.crossfadeout(2), presentation_clip.crossfadein(2)], method="compose")\
+        .set_duration(7)\
+        .set_audio(full_audio)
+
+    full_video = concatenate_videoclips([first_part, presentation_clip.set_start(first_part.end)]).set_audio(full_audio)
 
     full_video.write_videofile(video_info.output_file, fps=25, codec='libx264')  # Many options...
 
 
 def compose_audio(intro, presentation_clip):
     sound_file_name = f"{resource_dir}/music/bensound-onceagain.mp3"
-    fade_duration = 4
+    fade_duration = 2
     music_clip = AudioFileClip(sound_file_name).subclip(0, intro.duration + fade_duration)
     faded = audio_fadeout.audio_fadeout(music_clip, fade_duration)
     presentation_audio = presentation_clip.audio.set_start(intro.duration)
