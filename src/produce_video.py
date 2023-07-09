@@ -39,6 +39,10 @@ class ClipSection:
         [minutes, seconds] = self.start.split(":")
         return int(minutes) * 60 + int(seconds)
 
+    def stop_seconds(self):
+        [minutes, seconds] = self.stop.split(":")
+        return int(minutes) * 60 + int(seconds)
+
 
 @dataclass
 class ConfFileContents:
@@ -71,9 +75,11 @@ def do_it_all(video_info: VideoInfo) -> None:
     clips = video_info.conf_file_contents.clip
     start = clips[0].start_seconds()
     print("start " + str(start))
-    max_duration_main_clip = 10
+    max_duration_main_clip = 300
+    end_time = start + max_duration_main_clip
+    end_time = clips[0].stop_seconds()
     presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
-        .subclip(start, start + max_duration_main_clip)
+        .subclip(start, end_time)
 
     intro = intro_clip(video_info, presentation_clip.size)
 
