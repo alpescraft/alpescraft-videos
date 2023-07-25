@@ -95,13 +95,20 @@ def do_it_all(video_info: VideoInfo) -> None:
     intro = intro_clip(video_info, intro_duration)
 
     full_audio = compose_audio(intro_duration, presentation_clip)
+    if len(clips) > 1:
+        second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
+            .subclip(clips[1].start_seconds(), clips[1].stop_seconds())
+        full_audio = concatenate_audioclips([full_audio, second_presentation_clip.audio])
 
     # speed trick: use compose for fade and avoid it for speed for the rest of the video
     first_part = concatenate_videoclips([intro.crossfadeout(2), presentation_clip.crossfadein(2)], method="compose")\
         .set_duration(intro_duration)\
         .set_audio(full_audio)
 
-    full_video: VideoClip = concatenate_videoclips([first_part, presentation_clip.set_start(first_part.end)]).set_audio(full_audio)
+    video_parts = [first_part, presentation_clip.set_start(first_part.end)]
+    if len(clips) > 1:
+        video_parts.append(second_presentation_clip)
+    full_video: VideoClip = concatenate_videoclips(video_parts).set_audio(full_audio)
 
     full_video.resize(.5).save_frame(video_info.output_thumbnail(), t=0.1)
     full_video.write_videofile(video_info.output_file, fps=25, codec='libx264')  # Many options...
