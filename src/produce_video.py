@@ -46,22 +46,46 @@ class ClipSection:
         [minutes, seconds] = self.stop.split(":")
         return int(minutes) * 60 + int(seconds)
 
+@dataclass
+class SoundFile:
+    file_name: str
+    start: str
+
+    def start_seconds(self) -> int:
+        [minutes, seconds] = self.start.split(":")
+        return int(minutes) * 60 + int(seconds)
 
 @dataclass
 class ConfFileContents:
     title: str
     clip: typing.List[ClipSection]
+    sound_file: SoundFile
+
 
     @classmethod
     def from_dict(cls, param: dict):
         return cls(
             title=param["title"],
-            clip=[ClipSection(**x) for x in param["clip"]]
+            clip=[ClipSection(**x) for x in param["clip"]],
+            sound_file=SoundFile(**param["sound_file"])
         )
+
+
+class SoundSpec:
+    full_path_on_disk: str
+    start: str
+    is_separate: bool
+
+    def __init__(self, base_dir: str, sound_file: SoundFile, exists: bool) -> None:
+        self.full_path_on_disk = path.join(base_dir, sound_file.file_name)
+        self.start = sound_file.start
+        self.is_separate = exists
 
 
 class VideoInfo:
     def __init__(self, filename: str, conf_file_contents: ConfFileContents) -> None:
+        base_dir = path.dirname(filename)
+        self.sound_file = SoundSpec(base_dir, conf_file_contents.sound_file, conf_file_contents.sound_file is not None)
         self.conf_file_contents = conf_file_contents
 
         video_name = filename.removesuffix(".yml")
@@ -84,9 +108,9 @@ def do_it_all(video_info: VideoInfo) -> None:
     print("start " + str(start))
 
     # end time of video
-    # max_duration_main_clip = 10
-    # end_time = start + max_duration_main_clip
-    end_time = clips[0].stop_seconds()
+    max_duration_main_clip = 30
+    end_time = start + max_duration_main_clip
+    # end_time = clips[0].stop_seconds()
 
     presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
         .subclip(start, end_time)
@@ -94,7 +118,7 @@ def do_it_all(video_info: VideoInfo) -> None:
     intro_duration = 7
     intro = intro_clip(video_info, intro_duration)
 
-    full_audio = compose_audio(intro_duration, presentation_clip)
+    full_audio = compose_audio(video_info, intro_duration, presentation_clip)
     if len(clips) > 1:
         second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
             .subclip(clips[1].start_seconds(), clips[1].stop_seconds())
@@ -114,14 +138,18 @@ def do_it_all(video_info: VideoInfo) -> None:
     full_video.write_videofile(video_info.output_file, fps=25, codec='libx264')  # Many options...
 
 
-def compose_audio(intro_duration: int, presentation_clip: VideoClip):
+def compose_audio(video_info: VideoInfo, intro_duration: int, presentation_clip: VideoClip):
     sound_file_name = f"{resource_dir}/music/bensound-onceagain.mp3"
     fade_duration = 4
     music_clip = AudioFileClip(sound_file_name).subclip(0, intro_duration + fade_duration)
 
     faded = audio_fadeout.audio_fadeout(music_clip, fade_duration)
-    presentation_audio = presentation_clip.audio.set_start(intro_duration)
-    all_clips = [faded, presentation_audio]
+
+    if video_info.sound_file.is_separate:
+        presentation_audio = AudioFileClip(video_info.sound_file.full_path_on_disk).subclip(0, presentation_clip.duration)
+    else:
+        presentation_audio = presentation_clip.audio
+    all_clips = [faded, presentation_audio.set_start(intro_duration)]
     normalized_clips = [audio_normalize.audio_normalize(normalized) for normalized in all_clips]
     full_audio = CompositeAudioClip(normalized_clips)
 
