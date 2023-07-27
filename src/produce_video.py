@@ -15,9 +15,7 @@ from moviepy.video import fx
 from moviepy.video.fx import crop, resize
 from moviepy.audio.fx import audio_fadeout, audio_normalize
 
-
-
-
+TARGET_RESOLUTION = (1080, 1920)
 
 """
 Prepare real video by cropping and concatenating successive videos
@@ -105,14 +103,9 @@ def do_it_all(video_info: VideoInfo) -> None:
 
     clips = video_info.conf_file_contents.clip
     start = clips[0].start_seconds()
-    print("start " + str(start))
-
-    # end time of video
-    # max_duration_main_clip = 30
-    # end_time = start + max_duration_main_clip
     end_time = clips[0].stop_seconds()
 
-    presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
+    presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=TARGET_RESOLUTION)\
         .subclip(start, end_time)
 
     intro_duration = 7
@@ -120,7 +113,7 @@ def do_it_all(video_info: VideoInfo) -> None:
 
     full_audio = compose_audio(video_info, intro_duration, presentation_clip)
     if len(clips) > 1:
-        second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
+        second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=TARGET_RESOLUTION)\
             .subclip(clips[1].start_seconds(), clips[1].stop_seconds())
         full_audio = concatenate_audioclips([full_audio, second_presentation_clip.audio])
 
@@ -134,8 +127,20 @@ def do_it_all(video_info: VideoInfo) -> None:
         video_parts.append(second_presentation_clip)
     full_video: VideoClip = concatenate_videoclips(video_parts).set_audio(full_audio)
 
-    full_video.resize(.5).save_frame(video_info.output_thumbnail(), t=0.1)
+    write_thumbnail(full_video, video_info)
+    write_video(full_video, video_info)
+
+
+def write_video(full_video, video_info):
     full_video.write_videofile(video_info.output_file, fps=25, codec='libx264')  # Many options...
+
+
+def write_thumbnail(full_video, video_info):
+    full_video.resize(.5).save_frame(video_info.output_thumbnail(), t=0.1)
+
+
+# options
+# calculate a list of clips with audio, then join everything
 
 
 def compose_audio(video_info: VideoInfo, intro_duration: int, presentation_clip: VideoClip):
