@@ -108,9 +108,9 @@ def do_it_all(video_info: VideoInfo) -> None:
     print("start " + str(start))
 
     # end time of video
-    max_duration_main_clip = 30
-    end_time = start + max_duration_main_clip
-    # end_time = clips[0].stop_seconds()
+    # max_duration_main_clip = 30
+    # end_time = start + max_duration_main_clip
+    end_time = clips[0].stop_seconds()
 
     presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=(1080, 1920))\
         .subclip(start, end_time)
