@@ -26,38 +26,37 @@ Prepare real video by cropping and concatenating successive videos
 """
 
 
-def do_it_all(video_info: VideoInfo) -> None:
+def do_it_all(video_info: VideoInfo, resource_dir: str) -> None:
 
+    full_video = create_video_with_intro(video_info, resource_dir)
+
+    write_thumbnail(full_video, video_info)
+    write_video(full_video, video_info)
+
+
+def create_video_with_intro(video_info: VideoInfo, resource_dir: str):
     clips = video_info.conf_file_contents.clips
     start = clips[0].start_seconds()
     end_time = clips[0].stop_seconds()
-
     target_resolution = (1080, 1920)
-
-    presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution)\
+    presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution) \
         .subclip(start, end_time)
-
     intro_duration = 7
-    intro = intro_clip(video_info, intro_duration)
-
-    full_audio = compose_audio(video_info, intro_duration, presentation_clip)
+    intro = intro_clip(video_info, intro_duration, resource_dir)
+    full_audio = compose_audio(video_info, intro_duration, presentation_clip, resource_dir)
     if len(clips) > 1:
-        second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution)\
+        second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution) \
             .subclip(clips[1].start_seconds(), clips[1].stop_seconds())
         full_audio = concatenate_audioclips([full_audio, second_presentation_clip.audio])
-
     # speed trick: use compose for fade and avoid it for speed for the rest of the video
-    first_part = concatenate_videoclips([intro.crossfadeout(2), presentation_clip.crossfadein(2)], method="compose")\
-        .set_duration(intro_duration)\
+    first_part = concatenate_videoclips([intro.crossfadeout(2), presentation_clip.crossfadein(2)], method="compose") \
+        .set_duration(intro_duration) \
         .set_audio(full_audio)
-
     video_parts = [first_part, presentation_clip.set_start(first_part.end)]
     if len(clips) > 1:
         video_parts.append(second_presentation_clip)
     full_video: VideoClip = concatenate_videoclips(video_parts).set_audio(full_audio)
-
-    write_thumbnail(full_video, video_info)
-    write_video(full_video, video_info)
+    return full_video
 
 
 def write_video(full_video, video_info):
@@ -72,7 +71,7 @@ def write_thumbnail(full_video, video_info):
 # calculate a list of clips with audio, then join everything
 
 
-def compose_audio(video_info: VideoInfo, intro_duration: int, presentation_clip: VideoClip):
+def compose_audio(video_info: VideoInfo, intro_duration: int, presentation_clip: VideoClip, resource_dir: str):
     sound_file_name = f"{resource_dir}/music/bensound-onceagain.mp3"
     fade_duration = 4
     music_clip = AudioFileClip(sound_file_name).subclip(0, intro_duration + fade_duration)
@@ -90,7 +89,7 @@ def compose_audio(video_info: VideoInfo, intro_duration: int, presentation_clip:
     return full_audio
 
 
-def intro_clip(video_info: VideoInfo, intro_duration):
+def intro_clip(video_info: VideoInfo, intro_duration: int, resource_dir: str):
     logo = f"{resource_dir}/Logo/03-AlpesCraft_Couleurs-M.png"
     logo_clip = ImageClip(logo).set_position(('center', 0.2), relative=True)
 
@@ -119,4 +118,4 @@ conf_file_contents = ConfFileContents.from_dict(load(open(filename), yaml.Loader
 
 if __name__ == '__main__':
     video_info = VideoInfo(filename, conf_file_contents)
-    do_it_all(video_info)
+    do_it_all(video_info, resource_dir)
