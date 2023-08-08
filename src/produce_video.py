@@ -30,6 +30,21 @@ Prepare real video by cropping and concatenating successive videos
 
 """
 
+class MinutesSeconds:
+
+
+    def __init__(self, spec: str) -> None:
+        """
+        :arg spec of the form mm:ss
+        """
+        [minutes, seconds] = spec.split(":")
+        self.minutes = minutes
+        self.seconds = seconds
+
+    def seconds(self) -> int:
+        return int(self.minutes) * 60 + int(self.seconds)
+
+
 @dataclass
 class ClipSection:
 
