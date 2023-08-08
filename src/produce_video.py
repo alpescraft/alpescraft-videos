@@ -15,8 +15,6 @@ from moviepy.video import fx
 from moviepy.video.fx import crop, resize
 from moviepy.audio.fx import audio_fadeout, audio_normalize
 
-TARGET_RESOLUTION = (1080, 1920)
-
 """
 Prepare real video by cropping and concatenating successive videos
 
@@ -131,7 +129,9 @@ def do_it_all(video_info: VideoInfo) -> None:
     start = clips[0].start_seconds()
     end_time = clips[0].stop_seconds()
 
-    presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=TARGET_RESOLUTION)\
+    target_resolution = (1080, 1920)
+
+    presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution)\
         .subclip(start, end_time)
 
     intro_duration = 7
@@ -139,7 +139,7 @@ def do_it_all(video_info: VideoInfo) -> None:
 
     full_audio = compose_audio(video_info, intro_duration, presentation_clip)
     if len(clips) > 1:
-        second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=TARGET_RESOLUTION)\
+        second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution)\
             .subclip(clips[1].start_seconds(), clips[1].stop_seconds())
         full_audio = concatenate_audioclips([full_audio, second_presentation_clip.audio])
 
