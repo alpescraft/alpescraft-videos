@@ -67,24 +67,31 @@ class ClipSection:
 @dataclass
 class SoundFile:
     file_name: str
-    start: str
+    start: MinutesSeconds
 
     def start_seconds(self) -> float:
-        return MinutesSeconds.from_comma_separated(self.start).total_seconds()
+        return self.start.total_seconds()
+
+    @classmethod
+    def from_sound_file_spec(cls, file_name: str, start: str):
+        return cls(file_name=file_name, start=MinutesSeconds.from_comma_separated(start))
+
 
 @dataclass
 class ConfFileContents:
     title: str
-    clip: typing.List[ClipSection]
+    clips: typing.List[ClipSection]
     sound_file: SoundFile
-
 
     @classmethod
     def from_dict(cls, param: dict):
+        sound_file_spec = param["sound_file"]
+        sound_file = SoundFile.from_sound_file_spec(sound_file_spec["file_name"], sound_file_spec["start"])
+        clips = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in param["clip"]]
         return cls(
             title=param["title"],
-            clip=[ClipSection.from_clip_spec(**x) for x in param["clip"]],
-            sound_file=SoundFile(**param["sound_file"])
+            clips=clips,
+            sound_file=sound_file
         )
 
 
@@ -120,7 +127,7 @@ class VideoInfo:
 
 def do_it_all(video_info: VideoInfo) -> None:
 
-    clips = video_info.conf_file_contents.clip
+    clips = video_info.conf_file_contents.clips
     start = clips[0].start_seconds()
     end_time = clips[0].stop_seconds()
 
