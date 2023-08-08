@@ -5,12 +5,12 @@ from moviepy.audio.AudioClip import CompositeAudioClip, concatenate_audioclips
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import VideoClip
 from yaml import load
-from moviepy.editor import VideoFileClip, TextClip, ImageClip, CompositeVideoClip, concatenate_videoclips
-from moviepy.video.fx import crop, resize
+from moviepy.editor import VideoFileClip, CompositeVideoClip, concatenate_videoclips
 from moviepy.audio.fx import audio_fadeout, audio_normalize
 
 from logic.ConfFileContents import ConfFileContents
 from logic.VideoInfo import VideoInfo
+from logic.intro import intro_clip
 
 """
 Prepare real video by cropping and concatenating successive videos
@@ -42,7 +42,7 @@ def create_video_with_intro(video_info: VideoInfo, resource_dir: str):
     presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution) \
         .subclip(start, end_time)
     intro_duration = 7
-    intro = intro_clip(video_info, intro_duration, resource_dir)
+    intro: CompositeVideoClip = intro_clip(video_info, intro_duration, resource_dir)
     full_audio = compose_audio(video_info, intro_duration, presentation_clip, resource_dir)
     if len(clips) > 1:
         second_presentation_clip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution) \
@@ -87,26 +87,6 @@ def compose_audio(video_info: VideoInfo, intro_duration: int, presentation_clip:
     full_audio = CompositeAudioClip(normalized_clips)
 
     return full_audio
-
-
-def intro_clip(video_info: VideoInfo, intro_duration: int, resource_dir: str):
-    logo = f"{resource_dir}/Logo/03-AlpesCraft_Couleurs-M.png"
-    logo_clip = ImageClip(logo).set_position(('center', 0.2), relative=True)
-
-    background_image = f"{resource_dir}/Logo/bandeau.jpg"
-    image_clip = ImageClip(background_image)
-    cropped_image = crop.crop(image_clip, x1=0, y1=0, width=1920)
-    resized = resize.resize(cropped_image, newsize=(1920, 1080))
-    title = (TextClip(video_info.title, fontsize=52, color='white', stroke_width=3)
-                  .set_position(('center', 0.5), relative=True))
-    presenter_name = (TextClip(video_info.presenter, fontsize=45, color='white', stroke_width=2)
-                      .set_position(('center', 0.60), relative=True))
-
-    intro = CompositeVideoClip([resized, logo_clip, title, presenter_name])
-
-
-    return intro.set_duration(intro_duration)
-
 
 
 filename = sys.argv[1]
