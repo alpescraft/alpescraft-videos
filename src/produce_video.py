@@ -30,43 +30,47 @@ Prepare real video by cropping and concatenating successive videos
 
 """
 
+@dataclass
 class MinutesSeconds:
+    minutes: int
+    seconds: float
 
+    def total_seconds(self) -> float:
+        return self.minutes * 60 + self.seconds
 
-    def __init__(self, spec: str) -> None:
+    @staticmethod
+    def from_comma_separated(spec: str):
         """
         :arg spec of the form mm:ss
         """
         [minutes, seconds] = spec.split(":")
-        self.minutes = minutes
-        self.seconds = seconds
-
-    def seconds(self) -> int:
-        return int(self.minutes) * 60 + int(self.seconds)
+        return MinutesSeconds(minutes=int(minutes), seconds=float(seconds))
 
 
 @dataclass
 class ClipSection:
 
-    start: str
-    stop: str
+    start: MinutesSeconds
+    stop: MinutesSeconds
 
-    def start_seconds(self) -> int:
-        [minutes, seconds] = self.start.split(":")
-        return int(minutes) * 60 + int(seconds)
+    def start_seconds(self) -> float:
+        return self.start.total_seconds()
 
     def stop_seconds(self):
-        [minutes, seconds] = self.stop.split(":")
-        return int(minutes) * 60 + int(seconds)
+        return self.stop.total_seconds();
+
+    @classmethod
+    def from_clip_spec(cls, start: str, stop: str):
+        return cls(start=MinutesSeconds.from_comma_separated(start), stop=MinutesSeconds.from_comma_separated(stop))
+
 
 @dataclass
 class SoundFile:
     file_name: str
     start: str
 
-    def start_seconds(self) -> int:
-        [minutes, seconds] = self.start.split(":")
-        return int(minutes) * 60 + int(seconds)
+    def start_seconds(self) -> float:
+        return MinutesSeconds.from_comma_separated(self.start).total_seconds()
 
 @dataclass
 class ConfFileContents:
@@ -79,7 +83,7 @@ class ConfFileContents:
     def from_dict(cls, param: dict):
         return cls(
             title=param["title"],
-            clip=[ClipSection(**x) for x in param["clip"]],
+            clip=[ClipSection.from_clip_spec(**x) for x in param["clip"]],
             sound_file=SoundFile(**param["sound_file"])
         )
 
