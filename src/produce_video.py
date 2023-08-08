@@ -1,19 +1,16 @@
-import math
 import sys
-import typing
-from dataclasses import dataclass
-from os import path
 
-import moviepy
 import yaml
 from moviepy.audio.AudioClip import CompositeAudioClip, concatenate_audioclips
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import VideoClip
-from yaml import load, dump
-from moviepy.editor import VideoFileClip, TextClip, ImageClip, CompositeVideoClip, concatenate_videoclips, AudioClip
-from moviepy.video import fx
+from yaml import load
+from moviepy.editor import VideoFileClip, TextClip, ImageClip, CompositeVideoClip, concatenate_videoclips
 from moviepy.video.fx import crop, resize
 from moviepy.audio.fx import audio_fadeout, audio_normalize
+
+from logic.ConfFileContents import ConfFileContents
+from logic.VideoInfo import VideoInfo
 
 """
 Prepare real video by cropping and concatenating successive videos
@@ -27,100 +24,6 @@ Prepare real video by cropping and concatenating successive videos
 4. produce a thumbnail for the video as a separate artefact
 
 """
-
-@dataclass
-class MinutesSeconds:
-    minutes: int
-    seconds: float
-
-    def total_seconds(self) -> float:
-        return self.minutes * 60 + self.seconds
-
-    @staticmethod
-    def from_comma_separated(spec: str):
-        """
-        :arg spec of the form mm:ss
-        """
-        [minutes, seconds] = spec.split(":")
-        return MinutesSeconds(minutes=int(minutes), seconds=float(seconds))
-
-
-@dataclass
-class ClipSection:
-
-    start: MinutesSeconds
-    stop: MinutesSeconds
-
-    def start_seconds(self) -> float:
-        return self.start.total_seconds()
-
-    def stop_seconds(self):
-        return self.stop.total_seconds();
-
-    @classmethod
-    def from_clip_spec(cls, start: str, stop: str):
-        return cls(start=MinutesSeconds.from_comma_separated(start), stop=MinutesSeconds.from_comma_separated(stop))
-
-
-@dataclass
-class SoundFile:
-    file_name: str
-    start: MinutesSeconds
-
-    def start_seconds(self) -> float:
-        return self.start.total_seconds()
-
-    @classmethod
-    def from_sound_file_spec(cls, file_name: str, start: str):
-        return cls(file_name=file_name, start=MinutesSeconds.from_comma_separated(start))
-
-
-@dataclass
-class ConfFileContents:
-    title: str
-    clips: typing.List[ClipSection]
-    sound_file: SoundFile
-
-    @classmethod
-    def from_dict(cls, param: dict):
-        sound_file_spec = param["sound_file"]
-        sound_file = SoundFile.from_sound_file_spec(sound_file_spec["file_name"], sound_file_spec["start"])
-        clips = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in param["clip"]]
-        return cls(
-            title=param["title"],
-            clips=clips,
-            sound_file=sound_file
-        )
-
-
-class SoundSpec:
-    full_path_on_disk: str
-    start: str
-    is_separate: bool
-
-    def __init__(self, base_dir: str, sound_file: SoundFile, exists: bool) -> None:
-        self.full_path_on_disk = path.join(base_dir, sound_file.file_name)
-        self.start = sound_file.start
-        self.is_separate = exists
-
-
-class VideoInfo:
-    def __init__(self, filename: str, conf_file_contents: ConfFileContents) -> None:
-        base_dir = path.dirname(filename)
-        self.sound_file = SoundSpec(base_dir, conf_file_contents.sound_file, conf_file_contents.sound_file is not None)
-        self.conf_file_contents = conf_file_contents
-
-        video_name = filename.removesuffix(".yml")
-        self.video_name = video_name
-        self.output_file = video_name + ".mp4"
-        self.full_path_on_disk = video_name + ".mkv"
-
-        presenter = path.basename(video_name).split(" - ")[0]
-        self.title = conf_file_contents.title
-        self.presenter = presenter.title()
-
-    def output_thumbnail(self):
-        return self.video_name + ".png"
 
 
 def do_it_all(video_info: VideoInfo) -> None:
