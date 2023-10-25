@@ -1,0 +1,18 @@
+intro:
+  title: "awesome session"
+  speaker_name: "John Doe"
+  logo: "logo.png"
+
+# this is the main file and will specify the starting time onto wich all other files will be synchronized
+# It's possible to cut parts in the middle, simply by specifying more than one "part"
+speaker:
+  file_name: "awesome-session.mkv"
+  parts:
+    - start: "1:08"
+      stop: "55:15"
+
+sound:
+  file_name: "sound.wav"
+
+slides:
+  file_name: "sound.wav"

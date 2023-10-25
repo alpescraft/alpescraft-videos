@@ -1,0 +1,8 @@
+title: "awesome session"
+file_name: "awesome-session.mkv"
+clip:
+  - start: "1:08"
+    stop: "55:15"
+
+sound_file:
+  file_name: "sound.wav"
