@@ -2,7 +2,8 @@
 Handle post-production in an automated fashion. Joining video track, slides track and sound track(s) 
 is done by using file dates in order to sync the various sources.
 
-All you need to do is to specify the start and end time of the main video
+All you need to do is to specify the start and end time of the main video. Given that you all recording
+devices are time-synced, for instance by connecting them to the same wifi.
 
 # Rationale
 Post productions allows for a lot more error recovery in case something went wrong.
@@ -16,10 +17,13 @@ of both worlds.
 Where session-config.yaml is a file of the form
 
 ```yaml
+conference:
+  jingle: "jingle.mp3"
+  logo: "logo.png"
+
 intro:
   title: "awesome session"
   speaker_name: "John Doe"
-  logo: "logo.png"
 
 speaker:
   file_name: "awesome-session.mkv"
@@ -33,6 +37,11 @@ sound:
 slides:
   file_name: "slides.mp4"
 ```
+
+This means that the video will start at 1 minute and 8 seconds from the start of the speaker video. 
+Sound and slides will be synced accordingly. 
+
+
 
 
 
