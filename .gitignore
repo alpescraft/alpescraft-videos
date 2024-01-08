@@ -3,3 +3,4 @@
 *.mp4
 myHolidays_edited.*
 test/__pycache__/
+__pycache__
