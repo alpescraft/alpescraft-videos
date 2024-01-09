@@ -1,0 +1,19 @@
+conference:
+  jingle: "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
+  logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
+
+intro:
+  title: "Une application Kotlin Multiplatform en quelques minutes"
+  speaker_name: "Romain BOISELLE"
+
+speaker:
+  file_name: "/Volumes/files/alpescraft/ht/ht-jan-kotlin-multiplatform-speaker.mp4"
+  parts:
+    - start: "0:05"
+      stop: "9:27"
+
+sound:
+  file_name: "/Volumes/files/alpescraft/ht/ht-jan-kotlin-multiplatform.m4a"
+
+slides:
+  file_name: "/Volumes/files/alpescraft/ht/ht-jan-kotlin-multiplatform-slides.mkv"
