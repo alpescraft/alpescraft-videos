@@ -1,4 +1,4 @@
-from test_creation_time import compose_video, VideoCollageInfo
+from logic_v2.collate_video import VideoCollageInfo, compose_video
 
 if __name__ == '__main__':
     collage_info = VideoCollageInfo(
