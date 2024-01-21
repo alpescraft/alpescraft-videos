@@ -7,13 +7,17 @@ intro:
   speaker_name: "Damien HACKETT"
 
 speaker:
-  file_name: "/Volumes/files/alpescraft/ht/ht-jan-embarque-speaker.mp4"
+  file_name: "./experiment/ht-jan-embarque-speaker.mp4"
   parts:
-    - start: "0:39"
+    - start: "0:06"
       stop: "14:53"
+# 0:06    19:21:53
 
 sound:
-  file_name: "/Volumes/files/alpescraft/ht/ht-jan-embarque.m4a"
+  file_name: "./experiment/ht-jan-embarque.m4a"
+# 2:10    19:25:20
 
 slides:
-  file_name: "/Volumes/files/alpescraft/ht/ht-jan-embarque-slides.mkv"
+  file_name: "./experiment/ht-jan-embarque-slides.mkv"
+
+# 0:39    20:21:45+01:00

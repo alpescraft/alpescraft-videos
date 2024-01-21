@@ -1,26 +1,13 @@
-from dataclasses import dataclass
-
 from moviepy.video.VideoClip import VideoClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.video.fx import resize
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
+from logic_v2.VideoCollageInfo import VideoCollageInfo
 from logic_v2.start_time import get_relative_start_time
 
 
-@dataclass
-class VideoCollageInfo:
-    presentation_file_path: str
-    slides_file_path: str
-    presentation_start_stop_seconds: (float, float)
-    target_resolution: (int, int)
-
-    def get_start_length(self):
-        start, stop = self.presentation_start_stop_seconds
-        return start, stop - start
-
-
-def compose_video(video_collage_info: VideoCollageInfo):
+def collate_main_part(video_collage_info: VideoCollageInfo):
     start, length = video_collage_info.get_start_length()
 
     presentation_file_path = video_collage_info.presentation_file_path
