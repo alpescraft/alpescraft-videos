@@ -42,8 +42,6 @@ def collate_main_part(video_info: PresentationInfo, presenter_slide_ratio: Tuple
 
 def create_presentation_clip(length, presentation_file_path, start):
     presentation_clip = make_video_clip(presentation_file_path, .5, start, length)
-    w, h = 1920 * .5, 1080 * .5
-    presentation_clip = crop.crop(presentation_clip, width=w * .5, height=h, x_center=w / 2, y_center=h / 2)
     return presentation_clip
 
 
@@ -66,19 +64,24 @@ def create_sound_clip(length, presentation_file_path, start, track_file):
 
 
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info):
+    slides_clip = resize.resize(slides_clip, newsize=.75)
+
+    presentation_clip = resize.resize(presentation_clip, newsize=.5)
+    w, h = target_resolution
+    presentation_clip_540x540 = crop.crop(presentation_clip, width=w * .25, height=h*.5, x_center=w * .25, y_center=h * .25)
+
     logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
     log_100x240 = resize.resize(logo_250x600, .4)
-    logo_clip_above_speaker = log_100x240.set_position((120, 135))
-    location_clip = (
-        TextClip("GRENOBLE", fontsize=60, color='white', stroke_color='grey', stroke_width=2)).set_position(
-        (100, 1080 * .75 + 40))
+    location_clip = TextClip("GRENOBLE", fontsize=60, color='white', stroke_color='grey', stroke_width=2)
+
     background_color = ColorClip(target_resolution, color=(110, 20, 86))
+
     presentation_clips = [
         background_color,
         slides_clip.set_position(("right", "center")),
-        presentation_clip.set_position(("left", "center")),
-        logo_clip_above_speaker,
-        location_clip,
+        presentation_clip_540x540.set_position(("left", "center")),
+        log_100x240.set_position((120, 135)),
+        location_clip.set_position((100, 1080 * .75 + 40)),
     ]
     presentation_composition = (CompositeVideoClip(presentation_clips, size=target_resolution)
                                 .subclip(0, length))
@@ -105,7 +108,7 @@ def make_video_clip(presentation_file_path, ratio, start, length):
     presentation_clip: VideoClip = VideoFileClip(presentation_file_path) \
         .subclip(start, start + length)
     presentation_clip.set_audio(None)
-    resized_presentation_clip = resize.resize(presentation_clip, newsize=ratio)
+    resized_presentation_clip = presentation_clip # resize.resize(presentation_clip, newsize=ratio)
     return resized_presentation_clip
 
 def make_video_clip_(presentation_file_path, ratio, start, length):
