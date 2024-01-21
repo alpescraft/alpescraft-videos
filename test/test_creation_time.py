@@ -6,14 +6,10 @@ import pytest
 from logic_v2.collate_video import collate_main_part
 from logic_v2.start_time import get_offset_seconds, get_media_info, get_relative_start_time, get_offset_seconds_old
 
-SLIDES_FILE = "../test_files/ht-jan-01-slides.mkv"
 
 SPEAKER_REFERENCE_FILE = "../test_files/ht-jan-01-speaker.mp4"
-
 AUDIO_FILE_EXAMPLE = "../test_files/ht-jan-01.m4a"
 MKV_FILE_EXAMPLE = "../test_files/ht-jan-01-slides.mkv"
-
-
 
 
 class TestCase:
@@ -55,7 +51,7 @@ class TestCase:
         assert offset_seconds == expected_offset_seconds
 
     def test_get_relative_start_time(self) -> None:
-        offset_in_slides_file = get_relative_start_time(SPEAKER_REFERENCE_FILE, SLIDES_FILE, 1)
+        offset_in_slides_file = get_relative_start_time(SPEAKER_REFERENCE_FILE, MKV_FILE_EXAMPLE, 1)
         assert offset_in_slides_file == 7
 
     def test_get_created_date(self) -> None:
@@ -68,7 +64,7 @@ class TestCase:
 
         print()
         print(get_media_info(SPEAKER_REFERENCE_FILE))
-        print(get_media_info(SLIDES_FILE))
+        print(get_media_info(MKV_FILE_EXAMPLE))
 
 
 
