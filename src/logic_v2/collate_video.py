@@ -1,6 +1,7 @@
 from typing import Tuple
 
 from moviepy.audio.AudioClip import CompositeAudioClip
+from moviepy.audio.fx import audio_fadein
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video import fx
 from moviepy.video.VideoClip import VideoClip, ImageClip, TextClip, ColorClip
@@ -11,10 +12,13 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from logic_v2.PresentationInfo import PresentationInfo
 from logic_v2.VideoCollageInfo import VideoCollageInfo
-from logic_v2.intro import intro_clip
+from logic_v2.intro import intro_clip, intro_ht
 from logic_v2.start_time import get_relative_start_time
 
 HT_COLOR = (121, 2, 87)
+
+
+
 
 def collate_main_part(video_info: PresentationInfo):
     video_collage_info = VideoCollageInfo.from_video_info(video_info)
@@ -30,12 +34,13 @@ def collate_main_part(video_info: PresentationInfo):
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
 
     intro_duration = 5
-    fade_duration = 2
-    intro = intro_clip(video_info, intro_duration)
+    fade_duration = 1.1
+    # intro = intro_clip(video_info, intro_duration)
+    intro = intro_ht(video_info)
 
     # blend intro and main part
-    final_audio = compose_audio(fade_duration, intro_duration, sound_clip, video_info)
-    final_clip = blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition)
+    final_audio = compose_audio(fade_duration, intro.duration-fade_duration, sound_clip, video_info)
+    final_clip = blend_intro_and_main_clip(fade_duration, intro, intro.duration-fade_duration, presentation_composition)
 
     return final_clip.set_audio(final_audio)
 
@@ -88,16 +93,16 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
 
 
 def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition):
-    final_clip = CompositeVideoClip(
-        [transitions.crossfadeout(intro, fade_duration), transitions.crossfadein(presentation_composition.set_start(
-            intro_duration), fade_duration)])
+    intro_with_fade = transitions.crossfadeout(intro, fade_duration)
+    main_with_fade = transitions.crossfadein(presentation_composition.set_start(intro_duration), fade_duration)
+    final_clip = CompositeVideoClip([intro_with_fade, main_with_fade])
     return final_clip
 
 
 def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
     jingle = AudioFileClip(video_info.jingle).subclip(0, intro_duration + fade_duration)
     from moviepy.audio.fx import audio_fadeout, audio_normalize
-    audio_clips = [audio_fadeout.audio_fadeout(jingle, fade_duration), sound_clip.set_start(intro_duration)]
+    audio_clips = [audio_fadeout.audio_fadeout(jingle, fade_duration), audio_fadein.audio_fadein(sound_clip, fade_duration).set_start(intro_duration)]
     # normalized_audio_clips = [audio_normalize.audio_normalize(normalized) for normalized in [jingle, sound_clip]]
     final_audio = CompositeAudioClip(audio_clips)
     return final_audio

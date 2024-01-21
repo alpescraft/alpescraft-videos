@@ -1,7 +1,8 @@
 from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.video.VideoClip import ImageClip, TextClip, ColorClip
+from moviepy.video.VideoClip import ImageClip, TextClip, ColorClip, VideoClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.video.fx import crop, resize
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from logic_v2.PresentationInfo import PresentationInfo
 
@@ -26,3 +27,7 @@ def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVi
 
     intro = CompositeVideoClip([background_color, background_photo, logo_clip, title, presenter_name])
     return intro.subclip(0, intro_duration)
+
+
+def intro_ht(video_info: PresentationInfo) -> VideoClip:
+    return VideoFileClip(video_info.jingle)
