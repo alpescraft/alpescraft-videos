@@ -10,20 +10,24 @@ Post productions allows for a lot more error recovery in case something went wro
 The drawback is that is is labor intensive. Hence automating that part brings the best 
 of both worlds.
 
-# Usage
+# Install
+    pip3 install poetry
+    poetry install
 
-    python3 make_video.py session-config.yaml
+# Usage 
+    python3 produce_video_v2.py session-config.yaml [max time seconds] 
 
-Where session-config.yaml is a file of the form
+max_time_seconds is used when you want to generate a preview, and avoid to much processing time
+
+session-config.yaml is a file of the form
 
 ```yaml
 conference:
   jingle: "jingle.mp3"
   logo: "logo.png"
 
-intro:
-  title: "awesome session"
-  speaker_name: "John Doe"
+title: "awesome session"
+speaker_name: "John Doe"
 
 speaker:
   file_name: "awesome-session.mkv"
@@ -41,25 +45,22 @@ slides:
 This means that the video will start at 1 minute and 8 seconds from the start of the speaker video. 
 Sound and slides will be synced accordingly. 
 
+A more complete example can be found in the `examples` folder, for instance [example-conf.yml](examples/example-conf.yml).
 
-
-
+## Features
+* transition-fade between intro and main video
+* when capturing you can start any time, all you have to provide is the start time of one video
+* automatic adjustment of tracks based on media date metadata
+* extra_offset can be used to compensate for bad dates
 
 ## Intro
-The intro can be dynamically created including:
+Either provide a ready made intro file, or
+Generate one automatically 
 
 * Presentation title
 * Speaker name
 * Background
 * Logo
-* Music
+* jingle
 
 
-It does a transition fade with the main video 
-
-# Sound
-The soundtrack can be separate (and even several sound-tracks) or originate from the main video.
-It is included with a fade-out effect
-
-# Slides
-Slides can be a separate video source

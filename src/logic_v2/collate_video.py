@@ -1,9 +1,6 @@
-from typing import Tuple
-
 from moviepy.audio.AudioClip import CompositeAudioClip
 from moviepy.audio.fx import audio_fadein
 from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.video import fx
 from moviepy.video.VideoClip import VideoClip, ImageClip, TextClip, ColorClip
 from moviepy.video.compositing import transitions
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
@@ -12,12 +9,10 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from logic_v2.PresentationInfo import PresentationInfo
 from logic_v2.VideoCollageInfo import VideoCollageInfo
-from logic_v2.intro import intro_clip, intro_ht
+from logic_v2.intro import intro_ht
 from logic_v2.start_time import get_relative_start_time
 
 HT_COLOR = (121, 2, 87)
-
-
 
 
 def collate_main_part(video_info: PresentationInfo):
@@ -52,19 +47,16 @@ def create_presentation_clip(length, presentation_file_path, start):
 
 def create_slides_clip(length, presentation_file_path, start, track_file):
     slides_file_path = track_file.file_name
-    slides_relative_start = get_relative_start_time(presentation_file_path, slides_file_path,
-                                                    start) + track_file.extra_offset
+    slides_relative_start = (get_relative_start_time(presentation_file_path, slides_file_path, start)
+                             + track_file.extra_offset)
     return make_video_clip(slides_file_path, slides_relative_start, length)
 
 
 def create_sound_clip(length, presentation_file_path, start, track_file):
     sound_file_path = track_file.file_name
-    sound_relative_start = get_relative_start_time(presentation_file_path, sound_file_path,
-                                                   start) + track_file.extra_offset
-    sound_clip = AudioFileClip(sound_file_path).subclip(sound_relative_start, sound_relative_start + length)
-    print("start ", start)
-    print("sound_start", sound_relative_start)
-    return sound_clip
+    sound_relative_start = (get_relative_start_time(presentation_file_path, sound_file_path, start)
+                            + track_file.extra_offset)
+    return AudioFileClip(sound_file_path).subclip(sound_relative_start, sound_relative_start + length)
 
 
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info):
@@ -101,7 +93,7 @@ def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation
 
 def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
     jingle = AudioFileClip(video_info.jingle).subclip(0, intro_duration)
-    from moviepy.audio.fx import audio_fadeout, audio_normalize
+    from moviepy.audio.fx import audio_fadeout
     audio_clips = [audio_fadeout.audio_fadeout(jingle, fade_duration), audio_fadein.audio_fadein(sound_clip, fade_duration).set_start(intro_duration)]
     # normalized_audio_clips = [audio_normalize.audio_normalize(normalized) for normalized in [jingle, sound_clip]]
     final_audio = CompositeAudioClip(audio_clips)
@@ -113,10 +105,3 @@ def make_video_clip(presentation_file_path, start, length):
         .subclip(start, start + length)
     presentation_clip.set_audio(None)
     return presentation_clip
-
-def make_video_clip_(presentation_file_path, ratio, start, length):
-    presentation_clip: VideoClip = VideoFileClip(presentation_file_path) \
-        .subclip(start, start + length)
-    presentation_clip.set_audio(None)
-    resized_presentation_clip = resize.resize(presentation_clip, newsize=ratio)
-    return resized_presentation_clip
