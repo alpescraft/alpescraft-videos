@@ -15,6 +15,7 @@ def test_load_conf() -> None:
     expected_start = MinutesSeconds(0, start_seconds)
     assert video_info == expected_video_info(expected_stop, expected_start)
 
+
 def test_load_conf_max_length() -> None:
     start_seconds = 1
     max_length = 2
