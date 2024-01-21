@@ -10,8 +10,8 @@ SLIDES_FILE = "../test_files/ht-jan-01-slides.mkv"
 
 SPEAKER_REFERENCE_FILE = "../test_files/ht-jan-01-speaker.mp4"
 
-AUDIO_FILE_EXAMPLE = "/Users/johan/Downloads/Vocal 001.m4a"
-MKV_FILE_EXAMPLE = "/Users/johan/Movies/2024-01-09 19-07-11.mkv"
+AUDIO_FILE_EXAMPLE = "../test_files/ht-jan-01.m4a"
+MKV_FILE_EXAMPLE = "../test_files/ht-jan-01-slides.mkv"
 
 
 
@@ -64,7 +64,7 @@ class TestCase:
         assert created_date == datetime.datetime(2024, 1,8, 21,37,23, tzinfo=datetime.timezone(datetime.timedelta(seconds=0)))
 
         created_date, duration = get_media_info(MKV_FILE_EXAMPLE)
-        assert created_date == datetime.datetime(2024, 1,9, 19,7,22, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))) # + 1
+        assert created_date == datetime.datetime(2024, 1, 8, 22, 37, 26, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))) # + 1
 
         print()
         print(get_media_info(SPEAKER_REFERENCE_FILE))
@@ -77,9 +77,6 @@ class TestCase:
         utc_date = datetime.datetime.strptime("2024:01:08 22:37:20+01:00", '%Y:%m:%d %H:%M:%S%z')
         assert normal_date.replace(tzinfo=datetime.timezone.utc).timestamp() == utc_date.timestamp()
 
-    def test_time(self) -> None:
-        ctime = getctime(AUDIO_FILE_EXAMPLE)
-        assert datetime.datetime.fromtimestamp(ctime) == datetime.datetime(2024, 1, 9, 0, 34, 55, 234462)
 
     @pytest.mark.skip
     def test_assemble_videos(self):
