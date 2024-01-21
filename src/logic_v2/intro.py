@@ -1,24 +1,26 @@
-from moviepy.video.VideoClip import ImageClip, TextClip
+from moviepy.audio.io.AudioFileClip import AudioFileClip
+from moviepy.video.VideoClip import ImageClip, TextClip, ColorClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.video.fx import crop, resize
 
-from logic_v2.VideoInfo import PresentationInfo
+from logic_v2.PresentationInfo import PresentationInfo
 
 
-def intro_clip(video_info: PresentationInfo, intro_duration: int, resource_dir: str) -> CompositeVideoClip:
-    logo = f"{resource_dir}/Logo/03-AlpesCraft_Couleurs-M.png"
-    logo_clip = ImageClip(logo).set_position(('center', 0.2), relative=True)
+def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVideoClip:
+    logo_clip = ImageClip(video_info.logo).set_position(('left', 'bottom'))
+    logo_clip = resize.resize(logo_clip, newsize=(150, 150))
 
-    background_image = f"{resource_dir}/Logo/bandeau.jpg"
-    image_clip = ImageClip(background_image)
-    cropped_image = crop.crop(image_clip, x1=0, y1=0, width=1920)
-    resized = resize.resize(cropped_image, newsize=(1920, 1080))
-    title = (TextClip(video_info.title, fontsize=52, color='white', stroke_width=3)
-                  .set_position(('center', 0.5), relative=True))
-    presenter_name = (TextClip(video_info.presenter, fontsize=45, color='white', stroke_width=2)
-                      .set_position(('center', 0.60), relative=True))
+    image_clip = ImageClip(video_info.background_image)
 
-    intro = CompositeVideoClip([resized, logo_clip, title, presenter_name])
+    background_photo = crop.crop(image_clip, x1=0, y1=0, width=1920, height=900).set_position(('center', 'top'))
 
+    background_color = ColorClip((1920, 1080), color=(110, 20, 86))
 
-    return intro.set_duration(intro_duration)
+    title = (TextClip(video_info.title, fontsize=40, color='white', stroke_width=3)
+                  .set_position((.1, 0.85), relative=True))
+
+    presenter_name = (TextClip(video_info.speaker_name, fontsize=35, color='white', stroke_width=2)
+                      .set_position((.1, 0.92), relative=True))
+
+    intro = CompositeVideoClip([background_color, background_photo, logo_clip, title, presenter_name])
+    return intro.subclip(0, intro_duration)

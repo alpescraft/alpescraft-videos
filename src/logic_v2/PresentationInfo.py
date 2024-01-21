@@ -31,6 +31,11 @@ class PresentationInfo:
 
     slides: ClipFile
 
+    def __post_init__(self):
+        # TODO make this configurable
+        self.jingle = "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
+        self.logo = "/Volumes/files/alpescraft/ht/ht_logo.webp"
+        self.background_image = "/Volumes/files/alpescraft/ht/HT background image.jpeg"
 
 
     @classmethod
