@@ -39,8 +39,8 @@ def collate_main_part(video_info: PresentationInfo):
     intro = intro_ht(video_info)
 
     # blend intro and main part
-    final_audio = compose_audio(fade_duration, intro.duration-fade_duration, sound_clip, video_info)
-    final_clip = blend_intro_and_main_clip(fade_duration, intro, intro.duration-fade_duration, presentation_composition)
+    final_audio = compose_audio(fade_duration, intro.duration, sound_clip, video_info)
+    final_clip = blend_intro_and_main_clip(fade_duration, intro, intro.duration, presentation_composition)
 
     return final_clip.set_audio(final_audio)
 
@@ -100,7 +100,7 @@ def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation
 
 
 def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
-    jingle = AudioFileClip(video_info.jingle).subclip(0, intro_duration + fade_duration)
+    jingle = AudioFileClip(video_info.jingle).subclip(0, intro_duration)
     from moviepy.audio.fx import audio_fadeout, audio_normalize
     audio_clips = [audio_fadeout.audio_fadeout(jingle, fade_duration), audio_fadein.audio_fadein(sound_clip, fade_duration).set_start(intro_duration)]
     # normalized_audio_clips = [audio_normalize.audio_normalize(normalized) for normalized in [jingle, sound_clip]]
