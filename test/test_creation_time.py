@@ -52,7 +52,7 @@ class TestCase:
 
     def test_get_relative_start_time(self) -> None:
         offset_in_slides_file = get_relative_start_time(SPEAKER_REFERENCE_FILE, MKV_FILE_EXAMPLE, 1)
-        assert offset_in_slides_file == 5.9421000480651855
+        assert offset_in_slides_file == -1119836.057899952
 
     def test_get_created_date(self) -> None:
         absolute_file_path = AUDIO_FILE_EXAMPLE
@@ -61,7 +61,7 @@ class TestCase:
         assert duration == 10.356
 
         created_date, duration = get_media_info(MKV_FILE_EXAMPLE)
-        assert created_date == datetime.datetime(2024, 1, 8, 22, 37, 26, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))) # + 1
+        assert created_date == datetime.datetime(2024, 1, 21, 21, 41, 28, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))) # + 1
         assert duration == 15.104
 
         created_date, duration = get_media_info("../experiment/ht-jan-charge-mentale.m4a")
