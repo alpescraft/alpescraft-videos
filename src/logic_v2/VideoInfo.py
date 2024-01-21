@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 from logic.ClipSection import ClipSection
@@ -13,6 +13,7 @@ class ReferenceFile:
 @dataclass
 class ClipFile:
     file_name: str
+    extra_offset: float = field(default=0.0)
 
 
 @dataclass
@@ -36,18 +37,26 @@ class VideoInfo:
     def from_dict(cls, param) -> "VideoInfo":
         parts_ = param["speaker"]["parts"]
         parts = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in parts_]
+        sound = param["sound"]
+        slides = param["slides"]
         return VideoInfo(
             speaker=ReferenceFile(
                 file_name=param["speaker"]["file_name"],
                 parts=parts
             ),
             sound=ClipFile(
-                file_name=param["sound"]["file_name"]
+                file_name=sound["file_name"],
+                extra_offset=VideoInfo.get_extra_offset(sound)
             ),
             slides=ClipFile(
-                file_name=param["slides"]["file_name"]
+                file_name=slides["file_name"],
+                extra_offset=VideoInfo.get_extra_offset(slides)
             )
         )
+
+    @classmethod
+    def get_extra_offset(cls, track):
+        return track["extra_offset"] if "extra_offset" in track else 0.0
 
     @classmethod
     def load_video_info(cls, conf_path: str, max_length_seconds: Optional[int] = None):

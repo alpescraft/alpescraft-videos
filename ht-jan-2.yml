@@ -9,11 +9,13 @@ intro:
 speaker:
   file_name: "/Volumes/files/alpescraft/ht/ht-jan-kotlin-multiplatform-speaker.mp4"
   parts:
-    - start: "0:05"
-      stop: "9:27"
+    - start: "0:08"
+      stop: "9:33"
 
 sound:
   file_name: "/Volumes/files/alpescraft/ht/ht-jan-kotlin-multiplatform.m4a"
+  extra_offset: 0.9
 
 slides:
   file_name: "/Volumes/files/alpescraft/ht/ht-jan-kotlin-multiplatform-slides.mkv"
+  extra_offset: 0.5

@@ -14,10 +14,9 @@ def get_relative_start_time(reference_file_path: str, other_file_path: str, star
     other_time, other_duration = get_media_info(other_file_path)
     print(reference_time.timestamp(), other_time.timestamp())
     print("diff " + str(reference_time.timestamp() - other_time.timestamp()))
-    slides_relative_start = get_offset_seconds((reference_time.timestamp(), start_seconds_in_reference_file, reference_duration),
+    other_relative_start = get_offset_seconds((reference_time.timestamp(), start_seconds_in_reference_file, reference_duration),
                                                (other_time.timestamp(), other_duration))
-    print(slides_relative_start)
-    return slides_relative_start
+    return other_relative_start
 
 
 def get_media_info(absolute_file_path: str) -> (datetime.datetime, int):
@@ -64,6 +63,7 @@ def get_media_info(absolute_file_path: str) -> (datetime.datetime, int):
         created_date = datetime.datetime.strptime(tags["QuickTime:CreateDate"], '%Y:%m:%d %H:%M:%S').replace(
             tzinfo=datetime.timezone.utc)
         raw_duration = tags["QuickTime:Duration"]
+        print("created_date, raw_duration: ", created_date, raw_duration, absolute_file_path)
         return created_date, raw_duration
 
 

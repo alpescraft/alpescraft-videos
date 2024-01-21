@@ -11,13 +11,17 @@ speaker:
   parts:
     - start: "0:06"
       stop: "14:53"
-# 0:06    19:21:53
 
 sound:
   file_name: "./experiment/ht-jan-embarque.m4a"
-# 2:10    19:25:20
+  extra_offset: 0.9
+
 
 slides:
   file_name: "./experiment/ht-jan-embarque-slides.mkv"
+  extra_offset: 0.5
 
-# 0:39    20:21:45+01:00
+
+# file      duration   duration(s)   created(end)    start       diff
+# speaker   0:14:32    872           19:21:53        19:07:21
+# sound     0:20:02    1202          19:25:20        19:05:18    133s

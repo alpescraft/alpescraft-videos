@@ -15,5 +15,11 @@ speaker:
 sound:
   file_name: "./sound.m4a"
 
+  # the amount of seconds that this track is "late" compared to the speaker video
+  # normally this is 0, but if for some reason the media metadata is not correct, you can
+  # use this to adjust this track to the speaker track
+  # always omit this to start with
+  extra_offset: 0.9
+
 slides:
   file_name: "./slides.mp4"
