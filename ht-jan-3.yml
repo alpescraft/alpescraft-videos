@@ -2,9 +2,8 @@ conference:
   jingle: "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
   logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
 
-intro:
-  title: "Présentation de ma première library npm: ngx-computeasync"
-  speaker_name: "Sylvain DEDIEU"
+title: "Présentation de ma première library npm: ngx-computeasync"
+speaker_name: "Sylvain DEDIEU"
 
 speaker:
   file_name: "/Volumes/files/alpescraft/ht/ht-jan-premiere-lib-speaker.mp4"

@@ -17,15 +17,13 @@ class ClipFile:
 
 
 @dataclass
-class VideoInfo:
+class PresentationInfo:
     # conference:
         # jingle: "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
         # logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
 
-
-    # intro:
-        # title: "La charge mentale des dèvs"
-        # speaker_name: "Julien LENORMAND"
+    title: str
+    speaker_name: str
 
     speaker: ReferenceFile
 
@@ -33,24 +31,28 @@ class VideoInfo:
 
     slides: ClipFile
 
+
+
     @classmethod
-    def from_dict(cls, param) -> "VideoInfo":
+    def from_dict(cls, param) -> "PresentationInfo":
         parts_ = param["speaker"]["parts"]
         parts = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in parts_]
         sound = param["sound"]
         slides = param["slides"]
-        return VideoInfo(
+        return PresentationInfo(
+            title=param["title"],
+            speaker_name=param["speaker_name"],
             speaker=ReferenceFile(
                 file_name=param["speaker"]["file_name"],
                 parts=parts
             ),
             sound=ClipFile(
                 file_name=sound["file_name"],
-                extra_offset=VideoInfo.get_extra_offset(sound)
+                extra_offset=PresentationInfo.get_extra_offset(sound)
             ),
             slides=ClipFile(
                 file_name=slides["file_name"],
-                extra_offset=VideoInfo.get_extra_offset(slides)
+                extra_offset=PresentationInfo.get_extra_offset(slides)
             )
         )
 

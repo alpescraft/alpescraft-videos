@@ -14,6 +14,7 @@ def create_video_with_intro(video_info: VideoInfo, resource_dir: str):
     target_resolution = (1080, 1920)
     presentation_clip: VideoClip = VideoFileClip(video_info.full_path_on_disk, target_resolution=target_resolution) \
         .subclip(start, end_time)
+
     intro_duration = 7
     intro: CompositeVideoClip = intro_clip(video_info, intro_duration, resource_dir)
     full_audio = compose_audio(video_info, intro_duration, presentation_clip, resource_dir)

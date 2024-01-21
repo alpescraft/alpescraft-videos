@@ -2,9 +2,8 @@ conference:
   jingle: "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
   logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
 
-intro:
-  title: "Dev pour l'embarqué, c'est pour vous aussi !!!"
-  speaker_name: "Damien HACKETT"
+title: "Dev pour l'embarqué, c'est pour vous aussi !!!"
+speaker_name: "Damien HACKETT"
 
 speaker:
   file_name: "./experiment/ht-jan-embarque-speaker.mp4"

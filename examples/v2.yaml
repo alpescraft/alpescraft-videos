@@ -1,7 +1,9 @@
-intro:
-  title: "awesome session"
-  speaker_name: "John Doe"
-  logo: "logo.png"
+conference:
+  jingle: "./music.mp3"
+  logo: "./logo.webp"
+
+title: "awesome session"
+speaker_name: "John Doe"
 
 # this is the main file and will specify the starting time onto wich all other files will be synchronized
 # It's possible to cut parts in the middle, simply by specifying more than one "part"

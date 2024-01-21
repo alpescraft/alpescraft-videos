@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from logic_v2.VideoInfo import VideoInfo, ClipFile
+from logic_v2.PresentationInfo import PresentationInfo, ClipFile
 
 
 @dataclass
@@ -16,7 +16,7 @@ class VideoCollageInfo:
         return start, stop - start
 
     @classmethod
-    def from_video_info(cls, video_info: VideoInfo)->"VideoCollageInfo":
+    def from_video_info(cls, video_info: PresentationInfo)-> "VideoCollageInfo":
         first_part = video_info.speaker.parts[0]
         return VideoCollageInfo(
             presentation_file_path=video_info.speaker.file_name,

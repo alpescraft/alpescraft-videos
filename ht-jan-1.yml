@@ -2,9 +2,8 @@ conference:
   jingle: "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
   logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
 
-intro:
-  title: "La charge mentale des dèvs"
-  speaker_name: "Julien LENORMAND"
+title: "La charge mentale des dèvs"
+speaker_name: "Julien LENORMAND"
 
 speaker:
   file_name: "./experiment/ht-jan-charge-mentale-speaker.mp4"

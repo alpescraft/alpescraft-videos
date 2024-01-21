@@ -3,7 +3,7 @@ from typing import Tuple
 
 from moviepy.video.fx import resize
 
-from logic_v2.VideoInfo import VideoInfo
+from logic_v2.VideoInfo import PresentationInfo
 from logic_v2.collate_video import collate_main_part
 from logic_v2.VideoCollageInfo import VideoCollageInfo
 
@@ -21,7 +21,7 @@ Prepare real video by cropping and concatenating successive videos
 """
 
 
-def do_it_all(video_info: VideoInfo, filename: str, presenter_slide_ratio: Tuple[float, float]) -> None:
+def do_it_all(video_info: PresentationInfo, filename: str, presenter_slide_ratio: Tuple[float, float]) -> None:
 
     full_video = collate_main_part(VideoCollageInfo.from_video_info(video_info), presenter_slide_ratio)
 
@@ -44,5 +44,5 @@ if __name__ == '__main__':
     max_length = int(sys.argv[2]) if len(sys.argv) > 2 else None
     ratio = (.75, .25) if len(sys.argv) > 3 and sys.argv[3] == "--adjustment_mode" else (.25, .75)
 
-    video_info = VideoInfo.load_video_info(filename, max_length)
+    video_info = PresentationInfo.load_video_info(filename, max_length)
     do_it_all(video_info, filename, ratio)
