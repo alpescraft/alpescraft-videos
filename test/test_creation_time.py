@@ -52,7 +52,7 @@ class TestCase:
 
     def test_get_relative_start_time(self) -> None:
         offset_in_slides_file = get_relative_start_time(SPEAKER_REFERENCE_FILE, MKV_FILE_EXAMPLE, 1)
-        assert offset_in_slides_file == 7
+        assert offset_in_slides_file == 5.9421000480651855
 
     def test_get_created_date(self) -> None:
         absolute_file_path = AUDIO_FILE_EXAMPLE

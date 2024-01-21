@@ -7,6 +7,7 @@ from logic_v2.VideoInfo import VideoInfo
 class VideoCollageInfo:
     presentation_file_path: str
     slides_file_path: str
+    sound_file_path: str
     presentation_start_stop_seconds: (float, float)
     target_resolution: (int, int)
 
@@ -21,5 +22,6 @@ class VideoCollageInfo:
             presentation_file_path=video_info.speaker.file_name,
             slides_file_path=video_info.slides.file_name,
             presentation_start_stop_seconds=(first_part.start_seconds(), first_part.stop_seconds()),
+            sound_file_path=video_info.sound.file_name,
             target_resolution=(1920, 1080)
         )
