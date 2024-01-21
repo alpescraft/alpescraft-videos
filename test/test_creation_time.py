@@ -58,13 +58,18 @@ class TestCase:
         absolute_file_path = AUDIO_FILE_EXAMPLE
         created_date, duration = get_media_info(absolute_file_path)
         assert created_date == datetime.datetime(2024, 1,8, 21,37,23, tzinfo=datetime.timezone(datetime.timedelta(seconds=0)))
+        assert duration == 10.356
 
         created_date, duration = get_media_info(MKV_FILE_EXAMPLE)
         assert created_date == datetime.datetime(2024, 1, 8, 22, 37, 26, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))) # + 1
+        assert duration == 15.104
+
+        created_date, duration = get_media_info("../experiment/ht-jan-charge-mentale.m4a")
+        assert created_date == datetime.datetime(2024, 1, 9, 18, 33, tzinfo=datetime.timezone.utc) # + 1
+        assert duration == 1124.728
 
         print()
         print(get_media_info(SPEAKER_REFERENCE_FILE))
-        print(get_media_info(MKV_FILE_EXAMPLE))
 
 
 

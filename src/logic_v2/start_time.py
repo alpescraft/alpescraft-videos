@@ -46,18 +46,24 @@ def get_media_info(absolute_file_path: str) -> (datetime.datetime, int):
 
 
         duration
-        [Matroska]      Duration                        : 15.18 s
-        [QuickTime]     Duration                        : 0:18:45
+        [Matroska]      Duration                        : 0:10:45.117
+        [QuickTime]     Duration                        : 15.18 
 
 
         """
         if absolute_file_path.endswith(".mkv"):
-            tags = et.get_tags([absolute_file_path], ["FileModifyDate", "Duration"])
-            created_time = datetime.datetime.strptime(tags[0]["File:FileModifyDate"], '%Y:%m:%d %H:%M:%S%z')
-            return created_time, 0
-        tags = et.get_tags([absolute_file_path], ["CreateDate", "Duration"])
-        created_date = datetime.datetime.strptime(tags[0]["QuickTime:CreateDate"], '%Y:%m:%d %H:%M:%S').replace(
+            tags = et.get_tags([absolute_file_path], ["FileModifyDate", "Duration"])[0]
+            created_time = datetime.datetime.strptime(tags["File:FileModifyDate"], '%Y:%m:%d %H:%M:%S%z')
+
+            raw_duration = tags["Matroska:Duration"]
+            [hours, minutes, seconds] = raw_duration.split(":")
+            total_seconds = int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+
+            return created_time, total_seconds
+        tags = et.get_tags([absolute_file_path], ["CreateDate", "Duration"])[0]
+        created_date = datetime.datetime.strptime(tags["QuickTime:CreateDate"], '%Y:%m:%d %H:%M:%S').replace(
             tzinfo=datetime.timezone.utc)
-        return created_date, 0
+        raw_duration = tags["QuickTime:Duration"]
+        return created_date, raw_duration
 
 
