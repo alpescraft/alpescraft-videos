@@ -15,7 +15,7 @@ from logic_v2.intro import intro_clip
 from logic_v2.start_time import get_relative_start_time
 
 
-def collate_main_part(video_info: PresentationInfo, presenter_slide_ratio: Tuple[float, float]):
+def collate_main_part(video_info: PresentationInfo):
     video_collage_info = VideoCollageInfo.from_video_info(video_info)
     start, length = video_collage_info.get_start_length()
 
@@ -23,7 +23,7 @@ def collate_main_part(video_info: PresentationInfo, presenter_slide_ratio: Tuple
     target_resolution = video_collage_info.target_resolution
 
     # main part
-    slides_clip = create_slides_clip(length, presentation_file_path, presenter_slide_ratio, start,
+    slides_clip = create_slides_clip(length, presentation_file_path, start,
                                      video_collage_info.slides_file)
     presentation_clip = create_presentation_clip(length, presentation_file_path, start)
     presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
@@ -41,16 +41,15 @@ def collate_main_part(video_info: PresentationInfo, presenter_slide_ratio: Tuple
 
 
 def create_presentation_clip(length, presentation_file_path, start):
-    presentation_clip = make_video_clip(presentation_file_path, .5, start, length)
+    presentation_clip = make_video_clip(presentation_file_path, start, length)
     return presentation_clip
 
 
-def create_slides_clip(length, presentation_file_path, presenter_slide_ratio, start, track_file):
+def create_slides_clip(length, presentation_file_path, start, track_file):
     slides_file_path = track_file.file_name
     slides_relative_start = get_relative_start_time(presentation_file_path, slides_file_path,
                                                     start) + track_file.extra_offset
-    slides_clip: VideoClip = make_video_clip(slides_file_path, presenter_slide_ratio[1], slides_relative_start, length)
-    return slides_clip
+    return make_video_clip(slides_file_path, slides_relative_start, length)
 
 
 def create_sound_clip(length, presentation_file_path, start, track_file):
@@ -104,12 +103,11 @@ def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
     return final_audio
 
 
-def make_video_clip(presentation_file_path, ratio, start, length):
+def make_video_clip(presentation_file_path, start, length):
     presentation_clip: VideoClip = VideoFileClip(presentation_file_path) \
         .subclip(start, start + length)
     presentation_clip.set_audio(None)
-    resized_presentation_clip = presentation_clip # resize.resize(presentation_clip, newsize=ratio)
-    return resized_presentation_clip
+    return presentation_clip
 
 def make_video_clip_(presentation_file_path, ratio, start, length):
     presentation_clip: VideoClip = VideoFileClip(presentation_file_path) \
