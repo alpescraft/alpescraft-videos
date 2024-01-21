@@ -1,5 +1,9 @@
 .DS_Store
 .idea/
-*.mp4
+./*.mp4
+./*.mp3
+./*.png
+./*.mkv
 myHolidays_edited.*
 test/__pycache__/
+__pycache__

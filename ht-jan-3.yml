@@ -1,0 +1,20 @@
+conference:
+  jingle: "/Users/johan/Documents/alpescraft videos 2023/music/jingle_humantalks.mp4"
+  logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
+
+title: "Présentation de ma première library npm: ngx-computeasync"
+speaker_name: "Sylvain DEDIEU"
+
+speaker:
+  file_name: "/Volumes/files/alpescraft/ht/ht-jan-premiere-lib-speaker.mp4"
+  parts:
+    - start: "0:13"
+      stop: "14:22"
+
+sound:
+  file_name: "/Volumes/files/alpescraft/ht/ht-jan-premiere-lib.m4a"
+  extra_offset: 1.4
+
+slides:
+  file_name: "/Volumes/files/alpescraft/ht/ht-jan-premiere-lib-slides.mkv"
+  extra_offset: 1.15

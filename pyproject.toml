@@ -11,6 +11,7 @@ python = "^3.10"
 moviepy = "^1.0.3"
 pytest = "^7.4.0"
 pyaml = "^23.7.0"
+pyexiftool = "^0.5.6"
 
 
 [build-system]

@@ -1,0 +1,19 @@
+conference:
+  jingle: "/Users/johan/Documents/alpescraft videos 2023/music/jingle_humantalks.mp4"
+  logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
+
+intro:
+  title: "awesome session"
+  speaker_name: "John Doe"
+
+speaker:
+  file_name: "./speaker.mp4"
+  parts:
+    - start: "0:01"
+      stop: "0:04"
+
+sound:
+  file_name: "./sound.m4a"
+
+slides:
+  file_name: "./slides.mp4"

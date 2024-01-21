@@ -16,3 +16,7 @@ class MinutesSeconds:
         """
         [minutes, seconds] = spec.split(":")
         return MinutesSeconds(minutes=int(minutes), seconds=float(seconds))
+
+    @classmethod
+    def from_total_seconds(cls, new_stop_seconds):
+        return cls(minutes=int(new_stop_seconds // 60), seconds=new_stop_seconds % 60)
