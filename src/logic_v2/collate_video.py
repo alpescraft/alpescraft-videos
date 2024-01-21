@@ -22,31 +22,29 @@ def collate_main_part(video_info: PresentationInfo, presenter_slide_ratio: Tuple
     presentation_file_path = video_collage_info.presentation_file_path
     target_resolution = video_collage_info.target_resolution
 
+    # main part
     slides_clip = create_slides_clip(length, presentation_file_path, presenter_slide_ratio, start,
                                      video_collage_info.slides_file)
-
+    presentation_clip = create_presentation_clip(length, presentation_file_path, start)
+    presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
-
-    presentation_composition = create_presentation_clip(length, presentation_file_path, slides_clip, start,
-                                                        target_resolution, video_info)
 
     intro_duration = 2
     fade_duration = 2
     intro = intro_clip(video_info, intro_duration)
 
+    # blend intro and main part
     final_audio = compose_audio(fade_duration, intro_duration, sound_clip, video_info)
-
     final_clip = blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition)
 
     return final_clip.set_audio(final_audio)
 
 
-def create_presentation_clip(length, presentation_file_path, slides_clip, start, target_resolution, video_info):
+def create_presentation_clip(length, presentation_file_path, start):
     presentation_clip = make_video_clip(presentation_file_path, .5, start, length)
     w, h = 1920 * .5, 1080 * .5
     presentation_clip = crop.crop(presentation_clip, width=w * .5, height=h, x_center=w / 2, y_center=h / 2)
-    presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
-    return presentation_composition
+    return presentation_clip
 
 
 def create_slides_clip(length, presentation_file_path, presenter_slide_ratio, start, track_file):
