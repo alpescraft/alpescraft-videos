@@ -14,6 +14,7 @@ from logic_v2.VideoCollageInfo import VideoCollageInfo
 from logic_v2.intro import intro_clip
 from logic_v2.start_time import get_relative_start_time
 
+HT_COLOR = (121, 2, 87)
 
 def collate_main_part(video_info: PresentationInfo):
     video_collage_info = VideoCollageInfo.from_video_info(video_info)
@@ -23,13 +24,12 @@ def collate_main_part(video_info: PresentationInfo):
     target_resolution = video_collage_info.target_resolution
 
     # main part
-    slides_clip = create_slides_clip(length, presentation_file_path, start,
-                                     video_collage_info.slides_file)
+    slides_clip = create_slides_clip(length, presentation_file_path, start, video_collage_info.slides_file)
     presentation_clip = create_presentation_clip(length, presentation_file_path, start)
     presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
 
-    intro_duration = 2
+    intro_duration = 5
     fade_duration = 2
     intro = intro_clip(video_info, intro_duration)
 
@@ -73,7 +73,7 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     log_100x240 = resize.resize(logo_250x600, .4)
     location_clip = TextClip("GRENOBLE", fontsize=60, color='white', stroke_color='grey', stroke_width=2)
 
-    background_color = ColorClip(target_resolution, color=(110, 20, 86))
+    background_color = ColorClip(target_resolution, color=HT_COLOR)
 
     presentation_clips = [
         background_color,

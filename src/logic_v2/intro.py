@@ -7,6 +7,8 @@ from logic_v2.PresentationInfo import PresentationInfo
 
 
 def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVideoClip:
+    HT_COLOR = (121, 2, 87)
+
     logo_clip = ImageClip(video_info.logo).set_position(('left', 'bottom'))
     logo_clip = resize.resize(logo_clip, newsize=(175, 175))
 
@@ -14,7 +16,7 @@ def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVi
 
     background_photo = crop.crop(image_clip, x1=0, y1=0, width=1920, height=900).set_position(('center', 'top'))
 
-    background_color = ColorClip((1920, 1080), color=(110, 20, 86))
+    background_color = ColorClip((1920, 1080), color=HT_COLOR)
 
     title = (TextClip(video_info.title, fontsize=50, color='white', stroke_width=3)
                   .set_position((.1, 0.86), relative=True))

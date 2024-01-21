@@ -19,7 +19,7 @@ class ClipFile:
 @dataclass
 class PresentationInfo:
     # conference:
-        # jingle: "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
+        # jingle: "/Users/johan/Documents/alpescraft videos 2023/music/jingle_humantalks.mp4"
         # logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
 
     title: str
@@ -33,7 +33,7 @@ class PresentationInfo:
 
     def __post_init__(self):
         # TODO make this configurable
-        self.jingle = "/Users/johan/Documents/alpescraft videos 2023/music/bensound-onceagain.mp3"
+        self.jingle = "/Volumes/files/alpescraft/ht/jingle_humantalks.mp4"
         self.logo = "/Volumes/files/alpescraft/ht/ht_logo.webp"
         self.background_image = "/Volumes/files/alpescraft/ht/HT background image.jpeg"
 
