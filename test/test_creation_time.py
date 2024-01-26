@@ -64,12 +64,9 @@ class TestCase:
         assert created_date == datetime.datetime(2024, 1, 21, 21, 41, 28, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))) # + 1
         assert duration == 15.104
 
-        created_date, duration = get_media_info("../experiment/ht-jan-charge-mentale.m4a")
-        assert created_date == datetime.datetime(2024, 1, 9, 18, 33, tzinfo=datetime.timezone.utc) # + 1
-        assert duration == 1124.728
-
-        print()
-        print(get_media_info(SPEAKER_REFERENCE_FILE))
+        created_date, duration = get_media_info(SPEAKER_REFERENCE_FILE)
+        assert created_date == datetime.datetime(2024, 1,  8, 21, 37, 20, tzinfo=datetime.timezone.utc) # + 1
+        assert duration == 4.1619
 
 
 

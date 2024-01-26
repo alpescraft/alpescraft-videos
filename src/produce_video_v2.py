@@ -1,11 +1,9 @@
 import sys
-from typing import Tuple
 
 from moviepy.video.fx import resize
 
 from logic_v2.PresentationInfo import PresentationInfo
 from logic_v2.collate_video import collate_main_part
-from logic_v2.VideoCollageInfo import VideoCollageInfo
 
 """
 Prepare real video by cropping and concatenating successive videos
@@ -35,7 +33,8 @@ def write_video(full_video, output_file):
 
 
 def write_thumbnail(full_video, output_file):
-    resize.resize(full_video, .5).save_frame(output_file, t=0.1)
+    intro_length = 6
+    resize.resize(full_video, .5).save_frame(output_file, t=intro_length+2)
 
 
 if __name__ == '__main__':
