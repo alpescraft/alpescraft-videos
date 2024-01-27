@@ -85,10 +85,15 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
 
 
 def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition):
-    intro_with_fade = transitions.crossfadeout(intro, fade_duration)
-    main_with_fade = transitions.crossfadein(presentation_composition.set_start(intro_duration), fade_duration)
-    final_clip = CompositeVideoClip([intro_with_fade, main_with_fade])
-    return final_clip
+    def fadeout(clip):
+        return transitions.crossfadeout(clip,  fade_duration)
+
+    def fadein(clip):
+        return transitions.crossfadein(clip,  fade_duration)
+
+    main_part = presentation_composition.set_start(intro_duration)
+
+    return CompositeVideoClip([fadeout(intro), fadeout(fadein(main_part))])
 
 
 def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
