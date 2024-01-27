@@ -58,29 +58,45 @@ def create_sound_clip(length, presentation_file_path, start, track_file):
     return AudioFileClip(sound_file_path).subclip(sound_relative_start, sound_relative_start + length)
 
 
-def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info):
+def fade_in_an_cut_to_length(clip, length, fade_duration):
+    seconds_after_main_part = 4
+    start_and_duration_adjusted = clip.set_start(seconds_after_main_part).set_duration(length - seconds_after_main_part)
+    return transitions.crossfadein(start_and_duration_adjusted, fade_duration)
+
+
+def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
     slides_clip = resize.resize(slides_clip, newsize=.75)
 
-    presentation_clip = resize.resize(presentation_clip, newsize=.5)
     w, h = target_resolution
+    presentation_clip = resize.resize(presentation_clip, newsize=.5)
     presentation_clip_540x540 = crop.crop(presentation_clip, width=w * .25, height=h*.5, x_center=w * .25, y_center=h * .25)
 
     logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
-    log_100x240 = resize.resize(logo_250x600, .4)
-    location_clip = TextClip("GRENOBLE", fontsize=60, color='white', stroke_color='grey', stroke_width=2)
+    logo_100x240 = resize.resize(logo_250x600, .4)
 
     background_color = ColorClip(target_resolution, color=HT_COLOR)
+
+    text_style = dict(color='white', stroke_color='grey', stroke_width=0)
+    location_clip = TextClip("GRENOBLE", fontsize=60, **text_style)
+
+    text = video_info.speaker_name.replace(" ", "\n")
+    presenter_name_clip = TextClip(text, fontsize=800 / len(text), align='West', **text_style)
+
+    text = video_info.title
+    title_clip = TextClip(text, fontsize=2300 / len(text), **text_style)
+
+    # TODO center the title and the town name
 
     presentation_clips = [
         background_color,
         slides_clip.set_position(("right", "center")),
         presentation_clip_540x540.set_position(("left", "center")),
-        log_100x240.set_position((120, 135)),
+        logo_100x240.set_position((120, 135)),
         location_clip.set_position((100, 1080 * .75 + 40)),
+        fade_in_an_cut_to_length(presenter_name_clip, length, 1).set_position((100, 1080 * .75 + 40 + 105)),
+        fade_in_an_cut_to_length(title_clip, length, 1).set_position((480, 1080 * .75 + 40 + 145)),
     ]
-    presentation_composition = (CompositeVideoClip(presentation_clips, size=target_resolution)
-                                .subclip(0, length))
-    return presentation_composition
+    return CompositeVideoClip(presentation_clips, size=target_resolution).subclip(0, length)
 
 
 def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition):
