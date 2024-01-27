@@ -1,5 +1,4 @@
 from moviepy.audio.AudioClip import CompositeAudioClip
-from moviepy.audio.fx import audio_fadein
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import VideoClip, ImageClip, TextClip, ColorClip
 from moviepy.video.compositing import transitions
@@ -97,12 +96,19 @@ def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation
 
 
 def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
-    jingle = AudioFileClip(video_info.jingle).subclip(0, intro_duration)
-    from moviepy.audio.fx import audio_fadeout
-    audio_clips = [audio_fadeout.audio_fadeout(jingle, fade_duration), audio_fadein.audio_fadein(sound_clip, fade_duration).set_start(intro_duration)]
+    from moviepy.audio.fx import audio_fadeout, audio_fadein
+
+    def fadeout(clip):
+        return audio_fadeout.audio_fadeout(clip,  fade_duration)
+
+    def fadein(clip):
+        return audio_fadein.audio_fadein(clip,  fade_duration)
+
+    intro = AudioFileClip(video_info.jingle).subclip(0, intro_duration)
+    main_clip = sound_clip.set_start(intro_duration)
     # normalized_audio_clips = [audio_normalize.audio_normalize(normalized) for normalized in [jingle, sound_clip]]
-    final_audio = CompositeAudioClip(audio_clips)
-    return final_audio
+
+    return CompositeAudioClip([fadeout(intro), fadein(fadeout(main_clip))])
 
 
 def make_video_clip(presentation_file_path, start, length):
