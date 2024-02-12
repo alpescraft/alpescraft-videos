@@ -107,17 +107,14 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     text_style = dict(color='white', stroke_color='grey', stroke_width=0)
 
     region = Region(0, h * .75 , w*.25, h * .125)  # Presenter name region
-    location_clip = create_centered_textclip_with_respect_to_region(region, "GRENOBLE", len("GRENOBLE"), text_style)
+    location_clip = create_centered_textclip_with_respect_to_region(region, "GRENOBLE", text_style)
 
-    speaker_names = video_info.speaker_name.split(" ")
-    text = '\n'.join(speaker_names)
-    text_len = max(len(speaker_names[0]), len(speaker_names[1]))
     region = Region(0, h * .875 , w*.25, h * .125)  # Presenter name region
-    presenter_name_clip = create_centered_textclip_with_respect_to_region(region, text, text_len, text_style)
+    presenter_name_clip = create_centered_textclip_with_respect_to_region_multiline(region, video_info.speaker_name, text_style)
 
     title_text = video_info.title
     region = Region(w*.25, h * .875 , w *.75, h * .125)  # Presenter name region
-    title_clip = create_centered_textclip_with_respect_to_region(region, title_text, len(title_text), text_style)
+    title_clip = create_centered_textclip_with_respect_to_region(region, title_text, text_style)
 
     # TODO center the title and the town name
 
@@ -133,8 +130,25 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     return CompositeVideoClip(presentation_clips, size=target_resolution).subclip(0, length)
 
 
-def create_centered_textclip_with_respect_to_region(region, text, text_len, text_style):
-    presenter_name_clip = TextClip(text, fontsize=region.region_width / text_len, align='center', **text_style)
+def create_centered_textclip_with_respect_to_region_multiline(region, text, text_style):
+    speaker_names = text.split(" ")
+    text = '\n'.join(speaker_names)
+    text_len = max(len(speaker_names[0]), len(speaker_names[1]))
+
+    fontsize_width = region.region_width / text_len * 1.45
+    fontsize_height = region.region_height / (len(speaker_names)+.3)
+    fontsize = min(fontsize_width, fontsize_height)
+    presenter_name_clip = TextClip(text, fontsize=fontsize, align='center', **text_style)
+    center_pos = region.calculate_center(*presenter_name_clip.size)
+    presenter_name_clip = presenter_name_clip.set_position(center_pos)
+    return presenter_name_clip
+
+def create_centered_textclip_with_respect_to_region(region, text, text_style):
+    text_len = len(text)
+    fontsize_width = region.region_width / text_len * 1.45
+    fontsize_height = region.region_height / 1.7
+    fontsize = min(fontsize_width, fontsize_height)
+    presenter_name_clip = TextClip(text, fontsize=fontsize, align='center', **text_style)
     center_pos = region.calculate_center(*presenter_name_clip.size)
     presenter_name_clip = presenter_name_clip.set_position(center_pos)
     return presenter_name_clip
