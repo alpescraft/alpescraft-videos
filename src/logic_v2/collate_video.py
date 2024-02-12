@@ -109,19 +109,15 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     region = Region(0, h * .75 , w*.25, h * .125)  # Presenter name region
     location_clip = create_centered_textclip_with_respect_to_region(region, "GRENOBLE", len("GRENOBLE"), text_style)
 
-    # location_clip = TextClip("GRENOBLE", fontsize=60, **text_style)
-
-
     speaker_names = video_info.speaker_name.split(" ")
     text = '\n'.join(speaker_names)
     text_len = max(len(speaker_names[0]), len(speaker_names[1]))
-
-
     region = Region(0, h * .875 , w*.25, h * .125)  # Presenter name region
     presenter_name_clip = create_centered_textclip_with_respect_to_region(region, text, text_len, text_style)
 
     title_text = video_info.title
-    title_clip = TextClip(title_text, fontsize=2300 / len(speaker_names), **text_style)
+    region = Region(w*.25, h * .875 , w, h * .125)  # Presenter name region
+    title_clip = create_centered_textclip_with_respect_to_region(region, title_text, len(title_text), text_style)
 
     # TODO center the title and the town name
 
