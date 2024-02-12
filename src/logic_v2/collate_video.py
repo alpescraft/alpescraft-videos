@@ -116,7 +116,7 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     presenter_name_clip = create_centered_textclip_with_respect_to_region(region, text, text_len, text_style)
 
     title_text = video_info.title
-    region = Region(w*.25, h * .875 , w, h * .125)  # Presenter name region
+    region = Region(w*.25, h * .875 , w *.75, h * .125)  # Presenter name region
     title_clip = create_centered_textclip_with_respect_to_region(region, title_text, len(title_text), text_style)
 
     # TODO center the title and the town name
@@ -126,9 +126,9 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
         slides_clip.set_position(("right", "center")),
         presentation_clip_540x540.set_position(("left", "center")),
         logo_100x240.set_position((120, 135)),
-        location_clip.set_position((100, 1080 * .75 + 40)),
+        location_clip,
         fade_in_and_cut_to_length(presenter_name_clip, length, 1),
-        fade_in_and_cut_to_length(title_clip.set_position((480, 1080 * .75 + 40 + 145)), length, 1),
+        fade_in_and_cut_to_length(title_clip, length, 1),
     ]
     return CompositeVideoClip(presentation_clips, size=target_resolution).subclip(0, length)
 
