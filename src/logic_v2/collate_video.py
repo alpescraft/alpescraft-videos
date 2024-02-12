@@ -13,6 +13,20 @@ from logic_v2.start_time import get_relative_start_time
 
 HT_COLOR = (121, 2, 87)
 
+def collate_main_part_without_intro(video_info: PresentationInfo):
+    video_collage_info = VideoCollageInfo.from_video_info(video_info)
+    start, length = video_collage_info.get_start_length()
+
+    presentation_file_path = video_collage_info.presentation_file_path
+    target_resolution = video_collage_info.target_resolution
+
+    # main part
+    slides_clip = create_slides_clip(length, presentation_file_path, start, video_collage_info.slides_file)
+    presentation_clip = create_presentation_clip(length, presentation_file_path, start)
+    presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
+    sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
+    return presentation_composition.set_audio(sound_clip)
+
 
 def collate_main_part(video_info: PresentationInfo):
     video_collage_info = VideoCollageInfo.from_video_info(video_info)
@@ -27,9 +41,7 @@ def collate_main_part(video_info: PresentationInfo):
     presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
 
-    intro_duration = 5
     fade_duration = 1.1
-    # intro = intro_clip(video_info, intro_duration)
     intro = intro_ht(video_info)
 
     # blend intro and main part
@@ -40,8 +52,7 @@ def collate_main_part(video_info: PresentationInfo):
 
 
 def create_presentation_clip(length, presentation_file_path, start):
-    presentation_clip = make_video_clip(presentation_file_path, start, length)
-    return presentation_clip
+    return make_video_clip(presentation_file_path, start, length)
 
 
 def create_slides_clip(length, presentation_file_path, start, track_file):
@@ -58,10 +69,27 @@ def create_sound_clip(length, presentation_file_path, start, track_file):
     return AudioFileClip(sound_file_path).subclip(sound_relative_start, sound_relative_start + length)
 
 
-def fade_in_an_cut_to_length(clip, length, fade_duration):
+def fade_in_and_cut_to_length(clip, length, fade_duration):
     seconds_after_main_part = 4
     start_and_duration_adjusted = clip.set_start(seconds_after_main_part).set_duration(length - seconds_after_main_part)
     return transitions.crossfadein(start_and_duration_adjusted, fade_duration)
+
+
+class Region:
+
+    def __init__(self, region_x, region_y, region_width, region_height):
+        super().__init__()
+        self.region_height = region_height
+        self.region_width = region_width
+        self.region_y = region_y
+        self.region_x = region_x
+
+    def calculate_center(self, element_width, element_height):
+        # # Calculate the center position for the text clip within the specified region
+
+        element_x = self.region_x + (self.region_width - element_width) / 2
+        element_y = self.region_y + (self.region_height - element_height) / 2
+        return element_x, element_y
 
 
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
@@ -77,13 +105,23 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     background_color = ColorClip(target_resolution, color=HT_COLOR)
 
     text_style = dict(color='white', stroke_color='grey', stroke_width=0)
-    location_clip = TextClip("GRENOBLE", fontsize=60, **text_style)
 
-    text = video_info.speaker_name.replace(" ", "\n")
-    presenter_name_clip = TextClip(text, fontsize=800 / len(text), align='West', **text_style)
+    region = Region(0, h * .75 , w*.25, h * .125)  # Presenter name region
+    location_clip = create_centered_textclip_with_respect_to_region(region, "GRENOBLE", len("GRENOBLE"), text_style)
 
-    text = video_info.title
-    title_clip = TextClip(text, fontsize=2300 / len(text), **text_style)
+    # location_clip = TextClip("GRENOBLE", fontsize=60, **text_style)
+
+
+    speaker_names = video_info.speaker_name.split(" ")
+    text = '\n'.join(speaker_names)
+    text_len = max(len(speaker_names[0]), len(speaker_names[1]))
+
+
+    region = Region(0, h * .875 , w*.25, h * .125)  # Presenter name region
+    presenter_name_clip = create_centered_textclip_with_respect_to_region(region, text, text_len, text_style)
+
+    title_text = video_info.title
+    title_clip = TextClip(title_text, fontsize=2300 / len(speaker_names), **text_style)
 
     # TODO center the title and the town name
 
@@ -93,10 +131,17 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
         presentation_clip_540x540.set_position(("left", "center")),
         logo_100x240.set_position((120, 135)),
         location_clip.set_position((100, 1080 * .75 + 40)),
-        fade_in_an_cut_to_length(presenter_name_clip, length, 1).set_position((100, 1080 * .75 + 40 + 105)),
-        fade_in_an_cut_to_length(title_clip, length, 1).set_position((480, 1080 * .75 + 40 + 145)),
+        fade_in_and_cut_to_length(presenter_name_clip, length, 1),
+        fade_in_and_cut_to_length(title_clip.set_position((480, 1080 * .75 + 40 + 145)), length, 1),
     ]
     return CompositeVideoClip(presentation_clips, size=target_resolution).subclip(0, length)
+
+
+def create_centered_textclip_with_respect_to_region(region, text, text_len, text_style):
+    presenter_name_clip = TextClip(text, fontsize=region.region_width / text_len, align='center', **text_style)
+    center_pos = region.calculate_center(*presenter_name_clip.size)
+    presenter_name_clip = presenter_name_clip.set_position(center_pos)
+    return presenter_name_clip
 
 
 def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition):

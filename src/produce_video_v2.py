@@ -3,7 +3,7 @@ import sys
 from moviepy.video.fx import resize
 
 from logic_v2.PresentationInfo import PresentationInfo
-from logic_v2.collate_video import collate_main_part
+from logic_v2.collate_video import collate_main_part, collate_main_part_without_intro
 
 """
 Prepare real video by cropping and concatenating successive videos
@@ -21,11 +21,11 @@ Prepare real video by cropping and concatenating successive videos
 
 def do_it_all(video_info: PresentationInfo, filename: str) -> None:
 
-    full_video = collate_main_part(video_info)
+    full_video = collate_main_part_without_intro(video_info)
 
     video_name = filename.removesuffix(".yml")
     write_thumbnail(full_video, video_name+".png")
-    write_video(full_video, video_name + ".mp4")
+    # write_video(full_video, video_name + ".mp4")
 
 
 def write_video(full_video, output_file):
@@ -34,8 +34,9 @@ def write_video(full_video, output_file):
 
 
 def write_thumbnail(full_video, output_file):
-    intro_length = 6
+    intro_length = 2.8
     resize.resize(full_video, .5).save_frame(output_file, t=intro_length+2)
+    # resize.resize(full_video, .5).save_frame(output_file, t=intro_length+2)
 
 
 if __name__ == '__main__':
