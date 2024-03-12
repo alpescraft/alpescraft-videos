@@ -21,20 +21,19 @@ Prepare real video by cropping and concatenating successive videos
 
 def do_it_all(video_info: PresentationInfo, filename: str) -> None:
 
-    full_video = collate_main_part_without_intro(video_info)
+    full_video = collate_main_part(video_info)
 
     video_name = filename.removesuffix(".yml")
-    write_thumbnail(full_video, video_name+".png")
-    # write_video(full_video, video_name + ".mp4")
+    # write_thumbnail(full_video, video_name+".png")
+    write_video(full_video, video_name + ".mp4")
 
 
 def write_video(full_video, output_file):
     full_video.write_videofile(output_file, fps=25, codec='libx264')  # Many options...
 
 
-
 def write_thumbnail(full_video, output_file):
-    intro_length = 2.8
+    intro_length = 6
     resize.resize(full_video, .5).save_frame(output_file, t=intro_length+2)
     # resize.resize(full_video, .5).save_frame(output_file, t=intro_length+2)
 

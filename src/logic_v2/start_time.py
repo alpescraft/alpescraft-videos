@@ -1,4 +1,5 @@
 import datetime
+import os.path
 from typing import Tuple
 
 
@@ -50,6 +51,8 @@ def get_media_info(absolute_file_path: str) -> (datetime.datetime, int):
 
 
         """
+
+        assert os.path.exists(absolute_file_path), f"File {absolute_file_path} does not exist"
         if absolute_file_path.endswith(".mkv"):
             # TODO assert file exists
             tags = et.get_tags([absolute_file_path], ["FileModifyDate", "Duration"])[0]
