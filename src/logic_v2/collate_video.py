@@ -52,14 +52,22 @@ def collate_main_part(video_info: PresentationInfo):
 
 
 def create_presentation_clip(length, presentation_file_path, start):
-    return make_video_clip(presentation_file_path, start, length)
+    presentation_clip: VideoClip = VideoFileClip(presentation_file_path, target_resolution=(960, 540)) \
+        .subclip(start, start + length)
+    presentation_clip.set_audio(None)
+    return presentation_clip
 
 
 def create_slides_clip(length, presentation_file_path, start, track_file):
     slides_file_path = track_file.file_name
     slides_relative_start = (get_relative_start_time(presentation_file_path, slides_file_path, start)
                              + track_file.extra_offset)
-    return make_video_clip(slides_file_path, slides_relative_start, length)
+    resize_factor = .75
+    slides_resolution = (int(1080 * resize_factor), int(1920 * resize_factor))
+    presentation_clip: VideoClip = VideoFileClip(slides_file_path, target_resolution=slides_resolution) \
+        .subclip(slides_relative_start, slides_relative_start + length)
+    presentation_clip.set_audio(None)
+    return presentation_clip
 
 
 def create_sound_clip(length, presentation_file_path, start, track_file):
@@ -93,11 +101,9 @@ class Region:
 
 
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
-    slides_clip = resize.resize(slides_clip, newsize=.75)
 
     w, h = target_resolution
-    presentation_clip = resize.resize(presentation_clip, newsize=.5)
-    presentation_clip_540x540 = crop.crop(presentation_clip, width=w * .25, height=h*.5, x_center=w * .25, y_center=h * .25)
+    presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=540, x_center=540/2, y_center=480)
 
     logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
     logo_100x240 = resize.resize(logo_250x600, .4)
@@ -121,7 +127,7 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     presentation_clips = [
         background_color,
         slides_clip.set_position(("right", "center")),
-        presentation_clip_540x540.set_position(("left", "center")),
+        presentation_clip_480x540.set_position(("left", "center")),
         logo_100x240.set_position((120, 135)),
         location_clip,
         fade_in_and_cut_to_length(presenter_name_clip, length, 1),
@@ -180,10 +186,3 @@ def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
     # normalized_audio_clips = [audio_normalize.audio_normalize(normalized) for normalized in [jingle, sound_clip]]
 
     return CompositeAudioClip([fadeout(intro), fadein(fadeout(main_clip))])
-
-
-def make_video_clip(presentation_file_path, start, length):
-    presentation_clip: VideoClip = VideoFileClip(presentation_file_path) \
-        .subclip(start, start + length)
-    presentation_clip.set_audio(None)
-    return presentation_clip
