@@ -15,7 +15,7 @@ of both worlds.
     poetry install
 
 # Usage 
-    python3 src/produce_video_v2.py session-config.yaml [max time seconds] 
+    python3 src/produce_video_v2.py session-config.yaml [max time seconds] <--no-intro> 
 
 max_time_seconds is used when you want to generate a preview, and avoid to much processing time
 

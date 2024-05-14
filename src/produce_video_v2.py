@@ -19,9 +19,12 @@ Prepare real video by cropping and concatenating successive videos
 """
 
 
-def do_it_all(video_info: PresentationInfo, filename: str) -> None:
+def do_it_all(video_info: PresentationInfo, filename: str, prepend_intro: bool) -> None:
 
-    full_video = collate_main_part(video_info)
+    if prepend_intro:
+        full_video = collate_main_part(video_info)
+    else:
+        full_video = collate_main_part_without_intro(video_info)
 
     video_name = filename.removesuffix(".yml")
     # write_thumbnail(full_video, video_name+".png")
@@ -42,6 +45,7 @@ if __name__ == '__main__':
     assert len(sys.argv) >= 2
     filename = sys.argv[1]
     max_length = int(sys.argv[2]) if len(sys.argv) > 2 else None
+    prepend_intro = len(sys.argv) <= 3 or sys.argv[3] != "--no-intro"
 
     video_info = PresentationInfo.load_video_info(filename, max_length)
-    do_it_all(video_info, filename)
+    do_it_all(video_info, filename, prepend_intro)

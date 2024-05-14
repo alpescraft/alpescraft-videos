@@ -23,6 +23,8 @@ class PresentationInfo:
         # logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
 
     title: str
+
+    # TODO type this better, it is split later on
     speaker_name: str
 
     speaker: ReferenceFile

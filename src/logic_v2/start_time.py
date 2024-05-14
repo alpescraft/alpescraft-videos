@@ -62,17 +62,12 @@ def get_media_info(absolute_file_path: str) -> (datetime.datetime, int):
             total_seconds = int(hours) * 3600 + int(minutes) * 60 + float(seconds)
 
             return created_time, total_seconds
-        # if absolute_file_path.endswith(".m4a"):
-        #     tags = et.get_tags([absolute_file_path], ["CreateDate", "Duration"])[0]
-        #     created_date = datetime.datetime.strptime(tags["QuickTime:CreateDate"], '%Y:%m:%d %H:%M:%S')
-        #     raw_duration = tags["QuickTime:Duration"]
-        #     print("created_date, raw_duration: ", created_date, raw_duration, absolute_file_path)
-        #     return created_date, float(raw_duration)
 
         tags = et.get_tags([absolute_file_path], ["CreateDate", "Duration"])[0]
         created_date = datetime.datetime.strptime(tags["QuickTime:CreateDate"], '%Y:%m:%d %H:%M:%S').replace(
             tzinfo=datetime.timezone.utc)
         raw_duration = tags["QuickTime:Duration"]
+        print(f"start date {absolute_file_path}: {created_date - datetime.timedelta(seconds=raw_duration)}")
         print("created_date, raw_duration: ", created_date, raw_duration, absolute_file_path)
         return created_date, float(raw_duration)
 
