@@ -55,20 +55,26 @@ def get_media_info(absolute_file_path: str) -> (datetime.datetime, int):
         assert os.path.exists(absolute_file_path), f"File {absolute_file_path} does not exist"
         if absolute_file_path.endswith(".mkv"):
             tags = et.get_tags([absolute_file_path], ["FileModifyDate", "Duration"])[0]
-            created_time = datetime.datetime.strptime(tags["File:FileModifyDate"], '%Y:%m:%d %H:%M:%S%z')
+            created_date = datetime.datetime.strptime(tags["File:FileModifyDate"], '%Y:%m:%d %H:%M:%S%z')
 
-            raw_duration = tags["Matroska:Duration"]
-            [hours, minutes, seconds] = raw_duration.split(":")
-            total_seconds = int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+            duration = tags["Matroska:Duration"]
+            [hours, minutes, seconds] = duration.split(":")
+            duration = int(hours) * 3600 + int(minutes) * 60 + float(seconds)
 
-            return created_time, total_seconds
+            print(f"\n=={absolute_file_path}==")
+            print(f"start date {created_date - datetime.timedelta(seconds=duration)}")
+            print("created_date: ", created_date)
+            print("duration: ", duration)
+            return created_date, duration
 
         tags = et.get_tags([absolute_file_path], ["CreateDate", "Duration"])[0]
         created_date = datetime.datetime.strptime(tags["QuickTime:CreateDate"], '%Y:%m:%d %H:%M:%S').replace(
             tzinfo=datetime.timezone.utc)
-        raw_duration = tags["QuickTime:Duration"]
-        print(f"start date {absolute_file_path}: {created_date - datetime.timedelta(seconds=raw_duration)}")
-        print("created_date, raw_duration: ", created_date, raw_duration, absolute_file_path)
-        return created_date, float(raw_duration)
+        duration = tags["QuickTime:Duration"]
+        print(f"\n=={absolute_file_path}==")
+        print(f"start date {created_date - datetime.timedelta(seconds=duration)}")
+        print("created_date: ", created_date)
+        print("duration: ", duration)
+        return created_date, float(duration)
 
 

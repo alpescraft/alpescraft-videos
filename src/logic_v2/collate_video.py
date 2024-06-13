@@ -183,6 +183,5 @@ def compose_audio(fade_duration, intro_duration, sound_clip, video_info):
 
     intro = AudioFileClip(video_info.jingle).subclip(0, intro_duration)
     main_clip = sound_clip.set_start(intro_duration)
-    # normalized_audio_clips = [audio_normalize.audio_normalize(normalized) for normalized in [jingle, sound_clip]]
 
     return CompositeAudioClip([fadeout(intro), fadein(fadeout(main_clip))])

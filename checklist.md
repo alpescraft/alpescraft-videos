@@ -14,16 +14,18 @@
 
 
 ## slides
-* do the slides show?
+* Check that slides are shown in OBS
+* The red frame is at the border of the slides
 * Connect to same router
 
-## capture video speaker
-* visage au milieu de l'écran
-* Batterie 
-* Place de stockage
+## speaker video
+* Chest is in the middle of the screen
+* Follower follows speaker
+* Battery OK
+* Storage on phone OK
 * Connect to same router
 
-## capture son speaker
+## speaker sound
 * Battery
 * Sound test
 * Connect to same router

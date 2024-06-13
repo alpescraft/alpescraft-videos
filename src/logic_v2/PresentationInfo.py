@@ -15,14 +15,18 @@ class ClipFile:
     file_name: str
     extra_offset: float = field(default=0.0)
 
+@dataclass
+class Conference:
+    jingle: str
+    logo: str
 
 @dataclass
 class PresentationInfo:
-    # conference:
-        # jingle: "/Users/johan/Documents/alpescraft videos 2023/music/jingle_humantalks.mp4"
-        # logo: "/Volumes/files/alpescraft/ht/ht-logo.webp"
 
     title: str
+
+    jingle: str
+    logo: str
 
     # TODO type this better, it is split later on
     speaker_name: str
@@ -34,9 +38,6 @@ class PresentationInfo:
     slides: ClipFile
 
     def __post_init__(self):
-        # TODO make this configurable
-        self.jingle = "/Volumes/files/alpescraft/ht/jingle_humantalks.mp4"
-        self.logo = "/Volumes/files/alpescraft/ht/ht_logo.webp"
         self.background_image = "/Volumes/files/alpescraft/ht/HT background image.jpeg"
 
 
@@ -48,6 +49,8 @@ class PresentationInfo:
         slides = param["slides"]
         return PresentationInfo(
             title=param["title"],
+            jingle=param["conference"]["jingle"],
+            logo=param["conference"]["logo"],
             speaker_name=param["speaker_name"],
             speaker=ReferenceFile(
                 file_name=param["speaker"]["file_name"],
