@@ -1,6 +1,6 @@
 conference:
-  jingle: "./music.mp3"
-  logo: "./logo.webp"
+  jingle: "./work/img/jingle_humantalks.mp4"
+  logo: "./work/img/ht-logo.webp"
 
 title: "awesome session"
 speaker_name: "John Doe"
