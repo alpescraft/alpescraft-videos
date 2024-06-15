@@ -28,7 +28,7 @@ def do_it_all(video_info: PresentationInfo, filename: str, prepend_intro: bool) 
 
     video_name = filename.removesuffix(".yml")
     # write_thumbnail(full_video, video_name+".png")
-    write_video(full_video, video_name + ".mp4")
+    write_video(full_video, video_name + "-out.mp4")
 
 
 def write_video(full_video, output_file):
