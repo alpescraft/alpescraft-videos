@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from os import path
+from os.path import dirname
+from typing import List, Optional, Any
 
 from logic.ClipSection import ClipSection
 from logic.MinutesAndSeconds import MinutesSeconds
@@ -42,26 +44,29 @@ class PresentationInfo:
 
 
     @classmethod
-    def from_dict(cls, param) -> "PresentationInfo":
+    def from_dict(cls, param: dict) -> "PresentationInfo":
+
+        get_in_param = lambda k1, k2: param[k1][k2]
+
         parts_ = param["speaker"]["parts"]
         parts = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in parts_]
         sound = param["sound"]
         slides = param["slides"]
         return PresentationInfo(
             title=param["title"],
-            jingle=param["conference"]["jingle"],
-            logo=param["conference"]["logo"],
+            jingle=get_in_param("conference","jingle"),
+            logo=get_in_param("conference","logo"),
             speaker_name=param["speaker_name"],
             speaker=ReferenceFile(
-                file_name=param["speaker"]["file_name"],
+                file_name=get_in_param("speaker","file_name"),
                 parts=parts
             ),
             sound=ClipFile(
-                file_name=sound["file_name"],
+                file_name=get_in_param("sound", "file_name"),
                 extra_offset=PresentationInfo.get_extra_offset(sound)
             ),
             slides=ClipFile(
-                file_name=slides["file_name"],
+                file_name=get_in_param("slides", "file_name"),
                 extra_offset=PresentationInfo.get_extra_offset(slides)
             )
         )
@@ -74,8 +79,29 @@ class PresentationInfo:
     def load_video_info(cls, conf_path: str, max_length_seconds: Optional[int] = None):
         import yaml
         from yaml import load
-        video_info = cls.from_dict(load(open(conf_path), yaml.Loader))
+        presentation_dir = dirname(conf_path)
+        conference_dir = dirname(presentation_dir)
 
+        defaults = {
+            "conference": {
+                "jingle": path.join(conference_dir, "jingle.mp4"),
+                "logo": path.join(conference_dir, "logo.png")
+            },
+            "speaker": {
+                "file_name": path.join(presentation_dir, "speaker.mp4"),
+            },
+            "sound": {
+                "file_name": path.join(presentation_dir, "sound.m4a"),
+            },
+            "slides": {
+                "file_name": path.join(presentation_dir, "slides.mkv"),
+            }
+        }
+        param = load(open(conf_path), yaml.Loader)
+        if not param:
+            raise ValueError("No data in the conf file: " + conf_path)
+        merged = recursive_merge(param, defaults)
+        video_info = cls.from_dict(merged)
 
         video_info.speaker.parts[0].stop = cls.calculate_stop_position(video_info, max_length_seconds)
         print(video_info)
@@ -93,4 +119,11 @@ class PresentationInfo:
         print(stop_position)
         return stop_position
 
-
+def recursive_merge(dict1, dict2):
+    result = dict1.copy()  # Start with a copy of dict1
+    for key, value in dict2.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = recursive_merge(result[key], value)
+        else:
+            result[key] = value
+    return result

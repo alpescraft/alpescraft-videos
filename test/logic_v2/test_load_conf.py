@@ -27,8 +27,37 @@ def test_load_conf_max_length() -> None:
     assert video_info == expected_video_info(expected_stop, expected_start)
 
 
+# write test that is using a minimal conf file and gets most data from defaults
+def test_load_conf_minimal() -> None:
+
+    video_info = PresentationInfo.load_video_info("../examples/minimal-conf.yml")
+
+    expected_presentation_info = PresentationInfo(
+        jingle="../jingle.mp4",
+        logo="../logo.png",
+        title="awesome session",
+        speaker_name="John Doe",
+        speaker=ReferenceFile(
+            file_name="../examples/speaker.mp4",
+            parts=[
+                ClipSection(MinutesSeconds(0, 0.0), MinutesSeconds(0, 4.0))
+            ]
+        ),
+        sound=ClipFile(
+            file_name="../examples/sound.m4a",
+            extra_offset=0.0
+        ),
+        slides=ClipFile(
+            file_name="../examples/slides.mkv",
+            extra_offset=0.0
+        )
+    )
+    assert video_info == expected_presentation_info
+
 def expected_video_info(expected_stop, expected_start):
     return PresentationInfo(
+        jingle="./work/img/jingle_humantalks.mp4",
+        logo="./work/img/ht-logo.webp",
         title="awesome session",
         speaker_name="John Doe",
         speaker=ReferenceFile(
