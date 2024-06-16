@@ -103,7 +103,7 @@ class Region:
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
 
     w, h = target_resolution
-    presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=540, x_center=540/2, y_center=480)
+    presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=810/2, y_center=480)
 
     logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
     logo_100x240 = resize.resize(logo_250x600, .4)
@@ -113,7 +113,7 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     text_style = dict(color='white', stroke_color='grey', stroke_width=0)
 
     region = Region(0, h * .75 , w*.25, h * .125)  # Presenter name region
-    location_clip = create_centered_textclip_with_respect_to_region(region, "GRENOBLE", text_style)
+    location_clip = create_centered_textclip_with_respect_to_region(region, "AlpesCraft", text_style)
 
     region = Region(0, h * .875 , w*.25, h * .125)  # Presenter name region
     presenter_name_clip = create_centered_textclip_with_respect_to_region_multiline(region, video_info.speaker_name, text_style)
