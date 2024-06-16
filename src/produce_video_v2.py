@@ -36,8 +36,8 @@ def do_it_all(video_info: PresentationInfo, filename: str, generation_strategy: 
         full_video = collate_main_part_without_intro(video_info)
         write_video(full_video, video_name + "-out.mp4")
     else:
-        full_video = collate_main_part_without_intro(video_info)
-        write_thumbnail(full_video, video_name + ".png", 8)
+        full_video = collate_main_part(video_info)
+        write_thumbnail(full_video, video_name + "-thumbnail.png", 3)
 
 
 def write_video(full_video, output_file):

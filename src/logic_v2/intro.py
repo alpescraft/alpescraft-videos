@@ -1,10 +1,10 @@
-from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import ImageClip, TextClip, ColorClip, VideoClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.video.fx import crop, resize
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from logic_v2.PresentationInfo import PresentationInfo
+from logic_v2.region import Region, create_centered_textclip_with_respect_to_region
 
 
 def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVideoClip:
@@ -31,3 +31,48 @@ def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVi
 
 def intro_ht(video_info: PresentationInfo) -> VideoClip:
     return VideoFileClip(video_info.jingle)
+
+
+def create_intro_clip(video_info: PresentationInfo):
+    # Load the background image
+    ALPESCRAFT_COLOR_DARK = (20, 32, 44)
+    ALPESCRAFT_COLOR_LIGHT = (36, 75, 112)
+
+    background_image = ImageClip(video_info.background_image)
+
+    # Load and resize the logo
+    logo = ImageClip(video_info.logo)
+    logo = resize.resize(logo, newsize=(200, 200))
+
+    # Load the presenter photo
+    presenter_photo = ImageClip(video_info.speaker_image)
+    presenter_photo = resize.resize(presenter_photo, newsize=(200, 200))
+    # Create a mask for the presenter photo to make it round
+    mask = ImageClip("./src/scripts/circular-mask-200x200.png", ismask=True)
+    presenter_photo: ImageClip = presenter_photo.set_mask(mask)
+
+    # Create a blue-colored bar
+    blue_bar = ColorClip((1920, 100), color=ALPESCRAFT_COLOR_LIGHT)
+    blue_bar = blue_bar.set_position(('center', 'bottom'))
+
+    # Position the elements on the screen
+    logo = logo.set_position(('left', 'bottom'))
+    presenter_photo = presenter_photo.set_position(('center', 'center'))
+
+    # Create the session title text
+    # title = TextClip(video_info.title, fontsize=50, color='white')
+    text_style = dict(color='white', stroke_color='grey', stroke_width=1)
+    region = Region(0, background_image.size[1]-100, 1920, 100)
+    title = create_centered_textclip_with_respect_to_region(region, video_info.title, text_style)
+
+    # Create a composite video clip
+    intro_clip = CompositeVideoClip([
+        background_image,
+        blue_bar,
+        logo,
+        presenter_photo,
+        title
+    ])
+
+
+    return intro_clip.set_duration(5)

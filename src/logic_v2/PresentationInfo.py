@@ -34,18 +34,18 @@ class PresentationInfo:
     speaker_name: str
 
     speaker: ReferenceFile
+    speaker_image: str
 
     sound: ClipFile
 
     slides: ClipFile
-
-    def __post_init__(self):
-        self.background_image = "/Volumes/files/alpescraft/ht/HT background image.jpeg"
+    background_image: str
 
 
     @classmethod
     def from_dict(cls, param: dict) -> "PresentationInfo":
 
+        get_in_param1 = lambda k1: param[k1]
         get_in_param = lambda k1, k2: param[k1][k2]
 
         parts_ = param["speaker"]["parts"]
@@ -56,7 +56,9 @@ class PresentationInfo:
             title=param["title"],
             jingle=get_in_param("conference","jingle"),
             logo=get_in_param("conference","logo"),
+            background_image=get_in_param("conference","background_image"),
             speaker_name=param["speaker_name"],
+            speaker_image=get_in_param1("speaker_image"),
             speaker=ReferenceFile(
                 file_name=get_in_param("speaker","file_name"),
                 parts=parts
@@ -85,8 +87,10 @@ class PresentationInfo:
         defaults = {
             "conference": {
                 "jingle": path.join(conference_dir, "jingle.mp4"),
-                "logo": path.join(conference_dir, "logo.png")
+                "logo": path.join(conference_dir, "logo.png"),
+                "background_image": path.join(conference_dir, "background.jpg")
             },
+            "speaker_image": path.join(presentation_dir, "speaker.jpeg"),
             "speaker": {
                 "file_name": path.join(presentation_dir, "speaker.mp4"),
             },
