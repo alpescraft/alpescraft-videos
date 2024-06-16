@@ -1,4 +1,6 @@
 import sys
+import typing
+from dataclasses import dataclass
 
 from moviepy.video.fx import resize
 
@@ -19,33 +21,56 @@ Prepare real video by cropping and concatenating successive videos
 """
 
 
-def do_it_all(video_info: PresentationInfo, filename: str, prepend_intro: bool) -> None:
+@dataclass
+class GenerationStrategy:
+    task: typing.Literal["video", "video-nointro", "thumbnail"]
 
-    if prepend_intro:
-        full_video = collate_main_part(video_info)
-    else:
-        full_video = collate_main_part_without_intro(video_info)
+
+def do_it_all(video_info: PresentationInfo, filename: str, generation_strategy: GenerationStrategy) -> None:
 
     video_name = filename.removesuffix(".yml")
-    # write_thumbnail(full_video, video_name+".png")
-    write_video(full_video, video_name + "-out.mp4")
+    if generation_strategy.task == "video":
+        full_video = collate_main_part(video_info)
+        write_video(full_video, video_name + "-out.mp4")
+    elif generation_strategy.task == "video-nointro":
+        full_video = collate_main_part_without_intro(video_info)
+        write_video(full_video, video_name + "-out.mp4")
+    else:
+        full_video = collate_main_part_without_intro(video_info)
+        write_thumbnail(full_video, video_name + ".png", 8)
 
 
 def write_video(full_video, output_file):
     full_video.write_videofile(output_file, fps=25, codec='libx264')  # Many options...
 
 
-def write_thumbnail(full_video, output_file):
-    intro_length = 6
-    resize.resize(full_video, .5).save_frame(output_file, t=intro_length+2)
+def write_thumbnail(full_video, output_file, thumbnail_time):
+    resize.resize(full_video, .5).save_frame(output_file, t=thumbnail_time)
     # resize.resize(full_video, .5).save_frame(output_file, t=intro_length+2)
 
 
-if __name__ == '__main__':
+def get_generation_strategy():
+    if len(sys.argv) <= 3:
+        generation_strategy = GenerationStrategy(task="video")
+    elif sys.argv[3] == "--no-intro":
+        generation_strategy = GenerationStrategy(task="video-nointro")
+    elif sys.argv[3] == "--thumbnail":
+        generation_strategy = GenerationStrategy(task="thumbnail")
+    else:
+        raise ValueError("Unknown option argument")
+    return generation_strategy
+
+
+def parse_commandline():
     assert len(sys.argv) >= 2
     filename = sys.argv[1]
     max_length = int(sys.argv[2]) if len(sys.argv) > 2 else None
-    prepend_intro = len(sys.argv) <= 3 or sys.argv[3] != "--no-intro"
-
     video_info = PresentationInfo.load_video_info(filename, max_length)
-    do_it_all(video_info, filename, prepend_intro)
+    generation_strategy = get_generation_strategy()
+    return filename, video_info, generation_strategy
+
+
+if __name__ == '__main__':
+    filename, video_info, generation_strategy = parse_commandline()
+
+    do_it_all(video_info, filename, generation_strategy)
