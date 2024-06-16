@@ -12,6 +12,8 @@ from logic_v2.intro import intro_ht
 from logic_v2.start_time import get_relative_start_time
 
 HT_COLOR = (121, 2, 87)
+# ALPESCRAFT_COLOR = (36, 75, 112)
+ALPESCRAFT_COLOR = (20, 32, 44)
 
 def collate_main_part_without_intro(video_info: PresentationInfo):
     video_collage_info = VideoCollageInfo.from_video_info(video_info)
@@ -103,16 +105,17 @@ class Region:
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
 
     w, h = target_resolution
-    presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=810/2, y_center=480)
+    presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=540/2, y_center=480)
 
-    logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
-    logo_100x240 = resize.resize(logo_250x600, .4)
+    logo_200x200 = ImageClip(video_info.logo)
+    # logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
+    logo_100x240 = resize.resize(logo_200x200, .65)
 
-    background_color = ColorClip(target_resolution, color=HT_COLOR)
+    background_color = ColorClip(target_resolution, color=ALPESCRAFT_COLOR)
 
     text_style = dict(color='white', stroke_color='grey', stroke_width=0)
 
-    region = Region(0, h * .75 , w*.25, h * .125)  # Presenter name region
+    region = Region(w*.25, 0 , w*.75, h * .125)  # Presenter name region
     location_clip = create_centered_textclip_with_respect_to_region(region, "AlpesCraft", text_style)
 
     region = Region(0, h * .875 , w*.25, h * .125)  # Presenter name region
@@ -126,9 +129,9 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
 
     presentation_clips = [
         background_color,
+        logo_100x240.set_position((175, 0)), #  region-width / 2 - size/2 = 175
         slides_clip.set_position(("right", "center")),
         presentation_clip_480x540.set_position(("left", "center")),
-        logo_100x240.set_position((120, 135)),
         location_clip,
         fade_in_and_cut_to_length(presenter_name_clip, length, 1),
         fade_in_and_cut_to_length(title_clip, length, 1),
