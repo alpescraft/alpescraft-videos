@@ -41,7 +41,7 @@ def do_it_all(video_info: PresentationInfo, filename: str, generation_strategy: 
 
 
 def write_video(full_video, output_file):
-    full_video.write_videofile(output_file, fps=25, codec='libx264')  # Many options...
+    full_video.write_videofile(output_file, fps=25, codec='hevc_videotoolbox')  # Many options...
 
 
 def write_thumbnail(full_video, output_file, thumbnail_time):

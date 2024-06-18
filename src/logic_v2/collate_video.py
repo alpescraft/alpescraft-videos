@@ -3,6 +3,7 @@ from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import VideoClip, ImageClip, ColorClip
 from moviepy.video.compositing import transitions
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
+from moviepy.video.compositing.concatenate import concatenate_videoclips
 from moviepy.video.fx import resize, crop
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
@@ -131,9 +132,14 @@ def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation
     def fadein(clip):
         return transitions.crossfadein(clip,  fade_duration)
 
-    main_part = presentation_composition.set_start(intro_duration)
+    # speed trick: use compose for fade and avoid it for speed for the rest of the video
+    first_part = concatenate_videoclips([fadeout(intro), fadein(presentation_composition)], method="compose") \
+        .set_duration(intro_duration)
+    video_parts = [first_part, presentation_composition.set_start(first_part.end)]
+    full_video: VideoClip = concatenate_videoclips(video_parts)
 
-    return CompositeVideoClip([fadeout(intro), fadeout(fadein(main_part))])
+    return full_video
+
 
 
 def compose_audio(fade_duration, intro_duration, sound_clip, video_info):

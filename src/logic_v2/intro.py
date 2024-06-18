@@ -46,23 +46,30 @@ def create_intro_clip(video_info: PresentationInfo):
 
     # Load the presenter photo
     presenter_photo = ImageClip(video_info.speaker_image)
-    presenter_photo = resize.resize(presenter_photo, newsize=(200, 200))
+    presenter_photo = resize.resize(presenter_photo, newsize=(400, 400))
     # Create a mask for the presenter photo to make it round
-    mask = ImageClip("./src/scripts/circular-mask-200x200.png", ismask=True)
+    mask = ImageClip("./src/scripts/circular-mask-400x400.png", ismask=True)
     presenter_photo: ImageClip = presenter_photo.set_mask(mask)
 
     # Create a blue-colored bar
     blue_bar = ColorClip((1920, 100), color=ALPESCRAFT_COLOR_LIGHT)
     blue_bar = blue_bar.set_position(('center', 'bottom'))
 
+
     # Position the elements on the screen
     logo = logo.set_position(('left', 'bottom'))
-    presenter_photo = presenter_photo.set_position(('center', 'center'))
 
+    presenter_photo_with_frame = CompositeVideoClip([
+        ImageClip("./src/scripts/circular-mask-430x430.png").set_position(('center', 'center')) ,
+        ImageClip("./src/scripts/circular-mask-420x420.png").set_position(('center', 'center')),
+        presenter_photo.set_position(('center', 'center'))
+    ])
+    presenter_photo_with_frame = presenter_photo_with_frame.set_position(('center', 'center'))
     # Create the session title text
     # title = TextClip(video_info.title, fontsize=50, color='white')
     text_style = dict(color='white', stroke_color='grey', stroke_width=1)
-    region = Region(0, background_image.size[1]-100, 1920, 100)
+    logo_width = 100
+    region = Region(logo_width, background_image.size[1] - 100, 1920-logo_width, 100)
     title = create_centered_textclip_with_respect_to_region(region, video_info.title, text_style)
 
     # Create a composite video clip
@@ -70,7 +77,7 @@ def create_intro_clip(video_info: PresentationInfo):
         background_image,
         blue_bar,
         logo,
-        presenter_photo,
+        presenter_photo_with_frame,
         title
     ])
 
