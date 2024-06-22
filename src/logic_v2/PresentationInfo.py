@@ -86,7 +86,7 @@ class PresentationInfo:
 
         defaults = {
             "conference": {
-                "jingle": path.join(conference_dir, "jingle.mp4"),
+                "jingle": path.join(conference_dir, "jingle.mp3"),
                 "logo": path.join(conference_dir, "logo.png"),
                 "background_image": path.join(conference_dir, "background.jpg")
             },

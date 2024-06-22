@@ -1,6 +1,7 @@
 import sys
 import typing
 from dataclasses import dataclass
+from os.path import dirname, basename
 
 from moviepy.video.fx import resize
 
@@ -28,20 +29,23 @@ class GenerationStrategy:
 
 def do_it_all(video_info: PresentationInfo, filename: str, generation_strategy: GenerationStrategy) -> None:
 
-    video_name = filename.removesuffix(".yml")
+    filename_without_suffix = filename.removesuffix(".yml")
+    video_dir = dirname(filename_without_suffix)
+    directore_name = basename(video_dir)
+    output_file_prefix = f"{video_dir}/{directore_name}"
     if generation_strategy.task == "video":
         full_video = collate_main_part(video_info)
-        write_video(full_video, video_name + "-out.mp4")
+        write_video(full_video, output_file_prefix + "-out.mp4")
     elif generation_strategy.task == "video-nointro":
         full_video = collate_main_part_without_intro(video_info)
-        write_video(full_video, video_name + "-out.mp4")
+        write_video(full_video, output_file_prefix + "-out.mp4")
     else:
         full_video = collate_main_part(video_info)
-        write_thumbnail(full_video, video_name + "-thumbnail.png", 3)
+        write_thumbnail(full_video, output_file_prefix + "-thumbnail.png", 3)
 
 
 def write_video(full_video, output_file):
-    full_video.write_videofile(output_file, fps=25, codec='hevc_videotoolbox')  # Many options...
+    full_video.write_videofile(output_file, fps=25, codec='libx264', threads=8)  # Many options...
 
 
 def write_thumbnail(full_video, output_file, thumbnail_time):

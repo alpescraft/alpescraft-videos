@@ -46,7 +46,7 @@ def collate_main_part(video_info: PresentationInfo):
     presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
 
-    fade_duration = 0.5
+    fade_duration = 1.1
     intro = create_intro_clip(video_info)
 
     # blend intro and main part
