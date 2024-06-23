@@ -1,3 +1,5 @@
+import pytest
+
 from logic.ClipSection import ClipSection
 from logic.MinutesAndSeconds import MinutesSeconds
 from logic_v2.PresentationInfo import PresentationInfo, ReferenceFile, ClipFile
@@ -27,16 +29,13 @@ def test_load_conf_max_length() -> None:
     assert video_info == expected_video_info(expected_stop, expected_start)
 
 
-# write test that is using a minimal conf file and gets most data from defaults
-def test_load_conf_minimal() -> None:
+def test_when_info_is_omitted_it_is_deduced_from_the_location() -> None:
 
     video_info = PresentationInfo.load_video_info("../examples/minimal-conf.yml")
 
     expected_presentation_info = PresentationInfo(
         jingle="../jingle.mp3",
         logo="../logo.png",
-        title="awesome session",
-        speaker_name="John Doe",
         speaker_image="../examples/speaker.png",
         background_image="../background.jpg",
         speaker=ReferenceFile(
@@ -52,9 +51,40 @@ def test_load_conf_minimal() -> None:
         slides=ClipFile(
             file_name="../examples/slides.mkv",
             extra_offset=0.0
-        )
+        ),
+        title="awesome session",
+        speaker_name="John Doe",
     )
     assert video_info == expected_presentation_info
+
+
+def test_when_info_is_omitted_it_uses_any_extensions_of_the_deduced_files() -> None:
+
+        video_info = PresentationInfo.load_video_info("../test_files/search-strategy-for-defaults/search-strategy-session/minimal-conf.yml")
+
+        expected_presentation_info = PresentationInfo(
+            jingle="../test_files/search-strategy-for-defaults/jingle.m4a", # not mp3
+            logo="../test_files/search-strategy-for-defaults/logo.jpeg", # not png
+            speaker_image="../test_files/search-strategy-for-defaults/search-strategy-session/speaker.jpeg", # not png
+            background_image="../test_files/search-strategy-for-defaults/background.jpeg", # not jpg
+            speaker=ReferenceFile(
+                file_name="../test_files/search-strategy-for-defaults/search-strategy-session/speaker.avi", # not mp4
+                parts=[
+                    ClipSection(MinutesSeconds(0, 0.0), MinutesSeconds(0, 4.0))
+                ]
+            ),
+            sound=ClipFile(
+                file_name="../test_files/search-strategy-for-defaults/search-strategy-session/sound.mp3", # not m4a
+                extra_offset=0.0
+            ),
+            slides=ClipFile(
+                file_name="../test_files/search-strategy-for-defaults/search-strategy-session/slides.avi", # not mkv
+                extra_offset=0.0
+            ),
+            title="awesome session",
+            speaker_name="John Doe",
+        )
+        assert video_info == expected_presentation_info
 
 def expected_video_info(expected_stop, expected_start):
     return PresentationInfo(

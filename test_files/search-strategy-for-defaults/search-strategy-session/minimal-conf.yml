@@ -1,0 +1,18 @@
+# no conference info. it will deduce from the location of this file
+# it'll get the conference info from two levels up
+# it'll get the speaker/sound/slides file names from the same directory as this file
+
+title: "awesome session"
+speaker_name: "John Doe"
+
+speaker:
+  # no file name
+  parts:
+    - start: "0:00"
+      stop: "0:04"
+
+sound:
+  # no file name
+
+slides:
+  # no file name
