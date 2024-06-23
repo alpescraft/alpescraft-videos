@@ -6,8 +6,8 @@ CONF_PATH = "../examples/example-conf.yml"
 
 
 def test_load_conf() -> None:
-    start_seconds = 1
-    stop_seconds = 4
+    start_seconds = 1.0
+    stop_seconds = 4.0
 
     video_info = PresentationInfo.load_video_info(CONF_PATH)
 
@@ -17,8 +17,8 @@ def test_load_conf() -> None:
 
 
 def test_load_conf_max_length() -> None:
-    start_seconds = 1
-    max_length = 2
+    start_seconds = 1.0
+    max_length = 2.0
 
     video_info = PresentationInfo.load_video_info(CONF_PATH, max_length)
 
@@ -33,10 +33,12 @@ def test_load_conf_minimal() -> None:
     video_info = PresentationInfo.load_video_info("../examples/minimal-conf.yml")
 
     expected_presentation_info = PresentationInfo(
-        jingle="../jingle.mp4",
+        jingle="../jingle.mp3",
         logo="../logo.png",
         title="awesome session",
         speaker_name="John Doe",
+        speaker_image="../examples/speaker.png",
+        background_image="../background.jpg",
         speaker=ReferenceFile(
             file_name="../examples/speaker.mp4",
             parts=[
@@ -60,6 +62,8 @@ def expected_video_info(expected_stop, expected_start):
         logo="./work/img/ht-logo.webp",
         title="awesome session",
         speaker_name="John Doe",
+        speaker_image="./work/img/speaker.jpg",
+        background_image="./work/img/background.jpg",
         speaker=ReferenceFile(
             file_name="./speaker.mp4",
             parts=[

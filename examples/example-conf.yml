@@ -1,9 +1,11 @@
 conference:
   jingle: "./work/img/jingle_humantalks.mp4"
   logo: "./work/img/ht-logo.webp"
+  background_image: "./work/img/background.jpg"
 
 title: "awesome session"
 speaker_name: "John Doe"
+speaker_image: "./work/img/speaker.jpg"
 
 speaker:
   file_name: "./speaker.mp4"
