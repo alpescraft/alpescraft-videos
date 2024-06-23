@@ -29,38 +29,10 @@ def test_load_conf_max_length() -> None:
     assert video_info == expected_video_info(expected_stop, expected_start)
 
 
-def test_when_info_is_omitted_it_is_deduced_from_the_location() -> None:
+def test_when_info_is_omitted_it_deduces_from_location_using_any_extensions_of_the_deduced_files() -> None:
 
-    video_info = PresentationInfo.load_video_info("../examples/minimal-conf.yml")
-
-    expected_presentation_info = PresentationInfo(
-        jingle="../jingle.mp3",
-        logo="../logo.png",
-        speaker_image="../examples/speaker.png",
-        background_image="../background.jpg",
-        speaker=ReferenceFile(
-            file_name="../examples/speaker.mp4",
-            parts=[
-                ClipSection(MinutesSeconds(0, 0.0), MinutesSeconds(0, 4.0))
-            ]
-        ),
-        sound=ClipFile(
-            file_name="../examples/sound.m4a",
-            extra_offset=0.0
-        ),
-        slides=ClipFile(
-            file_name="../examples/slides.mkv",
-            extra_offset=0.0
-        ),
-        title="awesome session",
-        speaker_name="John Doe",
-    )
-    assert video_info == expected_presentation_info
-
-
-def test_when_info_is_omitted_it_uses_any_extensions_of_the_deduced_files() -> None:
-
-        video_info = PresentationInfo.load_video_info("../test_files/search-strategy-for-defaults/search-strategy-session/minimal-conf.yml")
+        conf_file_location = "../test_files/search-strategy-for-defaults/search-strategy-session/minimal-conf.yml"
+        video_info = PresentationInfo.load_video_info(conf_file_location)
 
         expected_presentation_info = PresentationInfo(
             jingle="../test_files/search-strategy-for-defaults/jingle.m4a", # not mp3

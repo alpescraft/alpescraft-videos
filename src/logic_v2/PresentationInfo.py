@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass, field
 from os import path
 from os.path import dirname
@@ -6,6 +7,7 @@ from typing import List, Optional, Any
 
 from logic.ClipSection import ClipSection
 from logic.MinutesAndSeconds import MinutesSeconds
+from logic_v2.media_searcher import MediaSearcher, MediaType
 
 
 @dataclass
@@ -92,21 +94,33 @@ class PresentationInfo:
         presentation_dir = dirname(conf_path)
         conference_dir = dirname(presentation_dir)
 
+        conference_searcher = MediaSearcher(os.listdir(conference_dir))
+        def search_in_conf_dir( filename_without_extension, media_type) -> Optional[str]:
+            found_media = conference_searcher.search_for_media(filename_without_extension, media_type)
+            if found_media is not None:
+                return path.join(conference_dir, found_media)
+
+        session_searcher = MediaSearcher(os.listdir(presentation_dir))
+        def search_in_session_dir(filename_without_extension, media_type) -> Optional[str]:
+            found_media = session_searcher.search_for_media(filename_without_extension, media_type)
+            if found_media is not None:
+                return path.join(presentation_dir, found_media)
+
         defaults = {
             "conference": {
-                "jingle": path.join(conference_dir, "jingle.mp3"),
-                "logo": path.join(conference_dir, "logo.png"),
-                "background_image": path.join(conference_dir, "background.jpg")
+                "jingle": search_in_conf_dir("jingle", MediaType.SOUND),
+                "logo":  search_in_conf_dir("logo", MediaType.IMAGE),
+                "background_image":  search_in_conf_dir("background", MediaType.IMAGE)
             },
-            "speaker_image": path.join(presentation_dir, "speaker.png"),
+            "speaker_image": search_in_session_dir("speaker", MediaType.IMAGE),
             "speaker": {
-                "file_name": path.join(presentation_dir, "speaker.mp4"),
+                "file_name": search_in_session_dir("speaker", MediaType.VIDEO),
             },
             "sound": {
-                "file_name": path.join(presentation_dir, "sound.m4a"),
+                "file_name": search_in_session_dir("sound", MediaType.SOUND),
             },
             "slides": {
-                "file_name": path.join(presentation_dir, "slides.mkv"),
+                "file_name": search_in_session_dir("slides", MediaType.VIDEO),
             }
         }
         param = load(open(conf_path), yaml.Loader)
