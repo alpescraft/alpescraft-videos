@@ -36,12 +36,12 @@ def do_it_all(video_info: PresentationInfo, filename: str, generation_strategy: 
     if generation_strategy.task == "video":
         full_video = collate_main_part(video_info)
         write_video(full_video, output_file_prefix + "-out.mp4")
+        write_thumbnail(full_video, output_file_prefix + "-thumbnail.png", 3)
     elif generation_strategy.task == "video-nointro":
         full_video = collate_main_part_without_intro(video_info)
         write_video(full_video, output_file_prefix + "-out.mp4")
-    else:
-        full_video = collate_main_part(video_info)
-        write_thumbnail(full_video, output_file_prefix + "-thumbnail.png", 3)
+        write_thumbnail(full_video, output_file_prefix + "-thumbnail.png", 3+5)
+
 
 
 def write_video(full_video, output_file):
@@ -58,8 +58,8 @@ def get_generation_strategy():
         generation_strategy = GenerationStrategy(task="video")
     elif sys.argv[3] == "--no-intro":
         generation_strategy = GenerationStrategy(task="video-nointro")
-    elif sys.argv[3] == "--thumbnail":
-        generation_strategy = GenerationStrategy(task="thumbnail")
+    # elif sys.argv[3] == "--thumbnail":
+    #     generation_strategy = GenerationStrategy(task="thumbnail")
     else:
         raise ValueError("Unknown option argument")
     return generation_strategy
