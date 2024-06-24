@@ -13,6 +13,7 @@ from logic_v2.intro import create_intro_clip
 from logic_v2.region import Region, create_centered_textclip_with_respect_to_region_multiline, \
     create_centered_textclip_with_respect_to_region
 from logic_v2.start_time import get_relative_start_time
+from logic_v2.tracking import tracking_crop_of_presenter
 
 HT_COLOR = (121, 2, 87)
 # ALPESCRAFT_COLOR = (36, 75, 112)
@@ -91,7 +92,8 @@ def fade_in_and_cut_to_length(clip, length, fade_duration):
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
 
     w, h = target_resolution
-    presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=540/2, y_center=480)
+    presentation_clip_480x810 = static_crop_of_presenter(presentation_clip)
+    presentation_clip_480x810 = tracking_crop_of_presenter(presentation_clip)
 
     logo_200x200 = ImageClip(video_info.logo)
     # logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
@@ -117,12 +119,16 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
         background_color,
         logo_100x240.set_position((175, 0)), #  region-width / 2 - size/2 = 175
         slides_clip.set_position(("right", "center")),
-        presentation_clip_480x540.set_position(("left", "center")),
+        presentation_clip_480x810.set_position(("left", "center")),
         location_clip,
         fade_in_and_cut_to_length(presenter_name_clip, length, 1),
         fade_in_and_cut_to_length(title_clip, length, 1),
     ]
     return CompositeVideoClip(presentation_clips, size=target_resolution).subclip(0, length)
+
+
+def static_crop_of_presenter(presentation_clip):
+    return crop.crop(presentation_clip, width=480, height=810, x_center=540 / 2, y_center=480)
 
 
 def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition):
