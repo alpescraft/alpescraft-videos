@@ -30,4 +30,4 @@ if __name__ == "__main__":
         target_resolution=(1920, 1080))
 
     tracked_clip = tracking_crop_of_presenter(original)
-    tracked_clip.subclip(0, 3).write_videofile("tracked_clip.mp4", codec="libx264", fps=24)
+    tracked_clip.subclip(0, 7).write_videofile("tracked_clip.mp4", codec="libx264", fps=24)

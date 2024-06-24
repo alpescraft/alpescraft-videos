@@ -58,7 +58,7 @@ def collate_main_part(video_info: PresentationInfo):
 
 
 def create_presentation_clip(length, presentation_file_path, start):
-    presentation_clip: VideoClip = VideoFileClip(presentation_file_path, target_resolution=(960, 540)) \
+    presentation_clip: VideoClip = VideoFileClip(presentation_file_path, target_resolution=(1920, 1080)) \
         .subclip(start, start + length)
     presentation_clip.set_audio(None)
     return presentation_clip
@@ -92,7 +92,7 @@ def fade_in_and_cut_to_length(clip, length, fade_duration):
 def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
 
     w, h = target_resolution
-    presentation_clip_480x810 = static_crop_of_presenter(presentation_clip)
+    # presentation_clip_480x810 = static_crop_of_presenter(presentation_clip)
     presentation_clip_480x810 = tracking_crop_of_presenter(presentation_clip)
 
     logo_200x200 = ImageClip(video_info.logo)
