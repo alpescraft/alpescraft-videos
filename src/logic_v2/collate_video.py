@@ -1,3 +1,8 @@
+import abc
+import typing
+from abc import ABC
+from dataclasses import dataclass
+
 from moviepy.audio.AudioClip import CompositeAudioClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import VideoClip, ImageClip, ColorClip
@@ -9,16 +14,94 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from logic_v2.PresentationInfo import PresentationInfo
 from logic_v2.VideoCollageInfo import VideoCollageInfo
-from logic_v2.intro import create_intro_clip
 from logic_v2.region import Region, create_centered_textclip_with_respect_to_region_multiline, \
     create_centered_textclip_with_respect_to_region
 from logic_v2.start_time import get_relative_start_time
 
-HT_COLOR = (121, 2, 87)
-# ALPESCRAFT_COLOR = (36, 75, 112)
-ALPESCRAFT_COLOR = (20, 32, 44)
 
-def collate_main_part_without_intro(video_info: PresentationInfo):
+class ConferenceTheme(ABC):
+
+    conference_title: str
+    background_color: tuple[int, int, int]
+
+    @abc.abstractmethod
+    def create_intro_clip(self, video_info: PresentationInfo) -> VideoClip:
+        pass
+
+
+class HTConferenceTheme(ConferenceTheme):
+    conference_title = "Human Talks"
+    background_color = (121, 2, 87)
+
+    def create_intro_clip(self, video_info: PresentationInfo) -> VideoClip:
+        return VideoFileClip(video_info.jingle)
+
+
+ALPESCRAFT_COLOR_DARK = (20, 32, 44)
+
+
+class AlpesCraftConferenceTheme(ConferenceTheme):
+
+    conference_title = "AlpesCraft"
+    background_color = ALPESCRAFT_COLOR_DARK
+    def create_intro_clip(self, video_info: PresentationInfo) -> VideoClip:
+        # Load the background image
+        ALPESCRAFT_COLOR_LIGHT = (36, 75, 112)
+
+        background_image = ImageClip(video_info.background_image)
+
+        # Load and resize the logo
+        logo = ImageClip(video_info.logo)
+        logo = resize.resize(logo, newsize=(200, 200))
+
+        # Load the presenter photo
+        presenter_photo = ImageClip(video_info.speaker_image)
+        presenter_photo = resize.resize(presenter_photo, newsize=(400, 400))
+        # Create a mask for the presenter photo to make it round
+        mask = ImageClip("./src/scripts/circular-mask-400x400.png", ismask=True)
+        presenter_photo: ImageClip = presenter_photo.set_mask(mask)
+
+        # Create a blue-colored bar
+        blue_bar = ColorClip((1920, 100), color=ALPESCRAFT_COLOR_LIGHT)
+        blue_bar = blue_bar.set_position(('center', 'bottom'))
+
+        # Position the elements on the screen
+        logo = logo.set_position(('left', 'bottom'))
+
+        presenter_photo_with_frame = CompositeVideoClip([
+            ImageClip("./src/scripts/circular-mask-430x430.png").set_position(('center', 'center')),
+            ImageClip("./src/scripts/circular-mask-420x420.png").set_position(('center', 'center')),
+            presenter_photo.set_position(('center', 'center'))
+        ])
+        presenter_photo_with_frame = presenter_photo_with_frame.set_position(('center', 'center'))
+        # Create the session title text
+        # title = TextClip(video_info.title, fontsize=50, color='white')
+        text_style = dict(color='white', stroke_color='grey', stroke_width=1)
+        logo_width = 100
+        region = Region(logo_width, background_image.size[1] - 100, 1920 - logo_width, 100)
+        title = create_centered_textclip_with_respect_to_region(region, video_info.title, text_style)
+
+        # Create a composite video clip
+        intro_clip = CompositeVideoClip([
+            background_image,
+            blue_bar,
+            logo,
+            presenter_photo_with_frame,
+            title
+        ])
+
+        return intro_clip.set_duration(5)
+
+@dataclass
+class GenerationStrategy:
+    task: typing.Literal["video", "video-nointro", "thumbnail"]
+    conference_theme: ConferenceTheme
+
+    def create_intro_clip(self, video_info):
+        return self.conference_theme.create_intro_clip(video_info)
+
+
+def collate_main_part_without_intro(video_info: PresentationInfo,  generation_strategy: GenerationStrategy):
     video_collage_info = VideoCollageInfo.from_video_info(video_info)
     start, length = video_collage_info.get_start_length()
 
@@ -28,12 +111,13 @@ def collate_main_part_without_intro(video_info: PresentationInfo):
     # main part
     slides_clip = create_slides_clip(length, presentation_file_path, start, video_collage_info.slides_file)
     presentation_clip = create_presentation_clip(length, presentation_file_path, start)
-    presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
+    presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info,
+                                                  generation_strategy)
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
     return presentation_composition.set_audio(sound_clip)
 
 
-def collate_main_part(video_info: PresentationInfo):
+def collate_main_part(video_info: PresentationInfo, generation_strategy: GenerationStrategy):
     video_collage_info = VideoCollageInfo.from_video_info(video_info)
     start, length = video_collage_info.get_start_length()
 
@@ -43,11 +127,11 @@ def collate_main_part(video_info: PresentationInfo):
     # main part
     slides_clip = create_slides_clip(length, presentation_file_path, start, video_collage_info.slides_file)
     presentation_clip = create_presentation_clip(length, presentation_file_path, start)
-    presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info)
+    presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info, generation_strategy)
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
 
     fade_duration = 1.1
-    intro = create_intro_clip(video_info)
+    intro = generation_strategy.create_intro_clip(video_info)
 
     # blend intro and main part
     final_audio = compose_audio(fade_duration, intro.duration, sound_clip, video_info)
@@ -88,7 +172,8 @@ def fade_in_and_cut_to_length(clip, length, fade_duration):
     return transitions.crossfadein(start_and_duration_adjusted, fade_duration)
 
 
-def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo):
+def compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info: PresentationInfo,
+                       strategy: GenerationStrategy):
 
     w, h = target_resolution
     presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=540/2, y_center=480)
@@ -97,12 +182,12 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     # logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
     logo_100x240 = resize.resize(logo_200x200, .65)
 
-    background_color = ColorClip(target_resolution, color=ALPESCRAFT_COLOR)
+    background_color = ColorClip(target_resolution, color=strategy.conference_theme.background_color)
 
     text_style = dict(color='white', stroke_color='grey', stroke_width=0)
 
     region = Region(w * .25, 0, w * .75, h * .125)  # Presenter name region
-    location_clip = create_centered_textclip_with_respect_to_region(region, "AlpesCraft", text_style)
+    location_clip = create_centered_textclip_with_respect_to_region(region, strategy.conference_theme.conference_title, text_style)
 
     region = Region(0, h * .875, w * .25, h * .125)  # Presenter name region
     presenter_name_clip = create_centered_textclip_with_respect_to_region_multiline(region, video_info.speaker_name, text_style)
