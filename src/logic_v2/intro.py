@@ -1,10 +1,10 @@
-from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import ImageClip, TextClip, ColorClip, VideoClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.video.fx import crop, resize
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from logic_v2.PresentationInfo import PresentationInfo
+from logic_v2.region import Region, create_centered_textclip_with_respect_to_region
 
 
 def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVideoClip:
@@ -29,5 +29,3 @@ def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVi
     return intro.subclip(0, intro_duration)
 
 
-def intro_ht(video_info: PresentationInfo) -> VideoClip:
-    return VideoFileClip(video_info.jingle)
