@@ -6,9 +6,10 @@ import cv2
 from moviepy.video.VideoClip import VideoClip
 
 
-def tracking_crop_of_presenter(presentation_clip: VideoClip):
+def tracking_highlight_of_presenter(presentation_clip: VideoClip):
+
     first_image = presentation_clip.get_frame(0).copy()
-    # img = cv2.imread('test.jpg')
+
     zone = detect_person(first_image)
     print("zone", zone)
     tracker = cv2.TrackerCSRT.create()
@@ -16,19 +17,45 @@ def tracking_crop_of_presenter(presentation_clip: VideoClip):
 
     def track_presenter(frame):
         success, box = tracker.update(frame)
-        # print(success, box)
+
+        print(success, box)
+        if success:
+            frame = frame.copy()
+            (x, y, w, h) = box
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+        return frame
+
+    return presentation_clip.fl_image(track_presenter)
+
+def tracking_crop_of_presenter(presentation_clip: VideoClip):
+    first_image = presentation_clip.get_frame(0).copy()
+
+    tracker_holder = {"tracker": cv2.TrackerKCF.create()}
+    zone = detect_person(first_image)
+    print("zone", zone)
+    tracker_holder["tracker"].init(first_image, zone)
+
+    def track_presenter(frame):
+        print(frame.size)
+        success, box = tracker_holder["tracker"].update(frame)
+        if not success:
+            zone = detect_person(frame)
+            if zone is None:
+                box = tracker_holder["last_box"]
+            else:
+                print("zone", zone)
+                tracker_holder["tracker"] = cv2.TrackerKCF.create()
+                tracker_holder["tracker"].init(frame, zone)
+                box = zone
+        #     success, box = tracker.update(frame)
+
+        print(success, box)
         box_scaled_to_480x810 = portrait_box_within_bounds_480x810(box)
 
-        # frame[int(bbox[1]):int(bbox[1] + bbox[3]), int(bbox[0]):int(bbox[0] + bbox[2])] = bluredroi
-
         (x, y, w, h) = box_scaled_to_480x810
-        # print(box_scaled_to_480x810)
+        tracker_holder["last_box"] = box
         return frame[y:y + h, x:x + w]
-        # newframe= frame.copy()
-        # cv2.rectangle(newframe, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        #
-        # return newframe
-
 
     return presentation_clip.fl_image(track_presenter)
 
@@ -39,7 +66,9 @@ def detect_person(image):
     # Convert into grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # # Detect faces
-    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    faces = face_cascade.detectMultiScale(gray, 1.1, 6)
+    if len(faces) == 0:
+        return None
     return faces[0]
 
 

@@ -1,7 +1,7 @@
 import cv2
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
-from logic_v2.tracking import tracking_crop_of_presenter, detect_person
+from logic_v2.tracking import tracking_crop_of_presenter, detect_person, tracking_highlight_of_presenter
 
 
 def do_it():
@@ -29,5 +29,5 @@ if __name__ == "__main__":
         "/Users/johan/Documents/alpescraft videos 2024/sessions/cyrille martraire/speaker.mp4",
         target_resolution=(1920, 1080))
 
-    tracked_clip = tracking_crop_of_presenter(original)
-    tracked_clip.subclip(0, 7).write_videofile("tracked_clip.mp4", codec="libx264", fps=24)
+    tracked_clip = tracking_highlight_of_presenter(original)
+    tracked_clip.subclip(0, 20).write_videofile("tracked_clip.mp4", codec="libx264", fps=24)
