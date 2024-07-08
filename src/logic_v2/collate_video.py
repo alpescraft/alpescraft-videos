@@ -28,6 +28,10 @@ class ConferenceTheme(ABC):
     def create_intro_clip(self, video_info: PresentationInfo) -> VideoClip:
         pass
 
+    @abc.abstractmethod
+    def make_centered_logo_clip(self, logo_file_path, logo_region):
+        pass
+
 
 class HTConferenceTheme(ConferenceTheme):
     conference_title = "Grenoble"
@@ -35,6 +39,12 @@ class HTConferenceTheme(ConferenceTheme):
 
     def create_intro_clip(self, video_info: PresentationInfo) -> VideoClip:
         return VideoFileClip(video_info.jingle)
+
+    def make_centered_logo_clip(self, logo_file_path, logo_region):
+        logo_250x600 = crop.crop(ImageClip(logo_file_path), y1=175, y2=600 - 175)
+        logo_100x240 = resize.resize(logo_250x600, .4)
+        return logo_100x240.set_position(logo_region.calculate_center(*logo_100x240.size))
+
 
 
 ALPESCRAFT_COLOR_DARK = (20, 32, 44)
@@ -92,6 +102,11 @@ class AlpesCraftConferenceTheme(ConferenceTheme):
 
         return intro_clip.set_duration(5)
 
+    def make_centered_logo_clip(self, logo_file_path, logo_region):
+        logo_400x400 = ImageClip(logo_file_path)
+        logo_clip = resize.resize(logo_400x400, .65)  # 260x260
+        return logo_clip.set_position(logo_region.calculate_center(*logo_clip.size))
+
 @dataclass
 class GenerationStrategy:
     task: typing.Literal["video", "video-nointro", "thumbnail"]
@@ -99,6 +114,9 @@ class GenerationStrategy:
 
     def create_intro_clip(self, video_info):
         return self.conference_theme.create_intro_clip(video_info)
+
+    def make_centered_logo_clip(self, logo_file_path, logo_region):
+        return self.conference_theme.make_centered_logo_clip(logo_file_path, logo_region)
 
 
 def collate_main_part_without_intro(video_info: PresentationInfo,  generation_strategy: GenerationStrategy):
@@ -178,15 +196,11 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     w, h = target_resolution
     presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=540/2, y_center=480)
 
-    left_quarter_width = w * .25
-    upper_band_height = h * .125
-
-    # logo_200x200 = ImageClip(video_info.logo)
-    logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
-    logo_100x240 = resize.resize(logo_250x600, .4)
-    logo_clip = logo_100x240
+    left_quarter_width = w * .25   # 480
+    upper_band_height = h * .125   # 143
     logo_region = Region(0, 0, left_quarter_width, upper_band_height)
-    logo_clip = logo_clip.set_position(logo_region.calculate_center(*logo_clip.size))
+
+    logo_clip = strategy.make_centered_logo_clip(video_info.logo, logo_region)
 
     background_color = ColorClip(target_resolution, color=strategy.conference_theme.background_color)
 
