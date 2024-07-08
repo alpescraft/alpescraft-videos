@@ -15,41 +15,59 @@ of both worlds.
     poetry install
 
 # Usage 
-    python3 src/produce_video_v2.py session-config.yaml [max time seconds] <--no-intro>
+    python3 src/produce_video_v2.py [conference_theme] session-config.yaml [max time seconds] <--no-intro>
+
+
+conference_theme is either `ht` or `alpescraft`. It guides the background and the intro
 
 max_time_seconds is used when you want to generate a preview, and avoid to much processing time
 
 The timing is never completely right, to calibrate, the current best solution is to launch 
 the generation of a 7s long video, and check the result, then adapt the extra_offset to the sound file. eg
 
-    python3 src/produce_video_v2.py session-config.yaml 7 --no-intro
+    python3 src/produce_video_v2.py ht session-config.yaml 7 --no-intro
 
 
-session-config.yaml is a file of the form
+config.yaml is a file of the form (in it's simples form)
 
 ```yaml
-conference:
-  jingle: "jingle.mp3"
-  logo: "logo.png"
-
 title: "awesome session"
 speaker_name: "John Doe"
 
 speaker:
-  file_name: "awesome-session.mkv"
   parts:
+    # This means that the video will start at 1 minute and 8 seconds from the start of the speaker video. 
+    # Sound and slides will be synced accordingly. 
     - start: "1:08"
       stop: "55:15"
 
 sound:
-  file_name: "sound.wav"
 
 slides:
-  file_name: "slides.mp4"
 ```
 
-This means that the video will start at 1 minute and 8 seconds from the start of the speaker video. 
-Sound and slides will be synced accordingly. 
+necessary directory layout: 
+```
+.
+├── intro.mp4       
+├── logo.png
+└── whatever-session-name
+    ├── config.yml
+    ├── sound.mp3
+    ├── slides.mp4
+    └── video.mp4
+```
+
+
+If the intro has to be dynamically generated, replace the intro file with 
+```
+├── jingle.mp3       
+├── background.jpg  
+└── whatever-session-name
+    ├── speaker.jpg     # 400x400
+```
+
+
 
 A more complete example can be found in the `examples` folder, for instance [example-conf.yml](examples/example-conf.yml).
 
