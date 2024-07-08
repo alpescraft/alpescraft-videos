@@ -30,7 +30,7 @@ class ConferenceTheme(ABC):
 
 
 class HTConferenceTheme(ConferenceTheme):
-    conference_title = "Human Talks"
+    conference_title = "Grenoble"
     background_color = (121, 2, 87)
 
     def create_intro_clip(self, video_info: PresentationInfo) -> VideoClip:
@@ -178,29 +178,35 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     w, h = target_resolution
     presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=540/2, y_center=480)
 
-    logo_200x200 = ImageClip(video_info.logo)
-    # logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
-    logo_100x240 = resize.resize(logo_200x200, .65)
+    left_quarter_width = w * .25
+    upper_band_height = h * .125
+
+    # logo_200x200 = ImageClip(video_info.logo)
+    logo_250x600 = crop.crop(ImageClip(video_info.logo), y1=175, y2=600 - 175)
+    logo_100x240 = resize.resize(logo_250x600, .4)
+    logo_clip = logo_100x240
+    logo_region = Region(0, 0, left_quarter_width, upper_band_height)
+    logo_clip = logo_clip.set_position(logo_region.calculate_center(*logo_clip.size))
 
     background_color = ColorClip(target_resolution, color=strategy.conference_theme.background_color)
 
     text_style = dict(color='white', stroke_color='grey', stroke_width=0)
 
-    region = Region(w * .25, 0, w * .75, h * .125)  # Presenter name region
+    region = Region(left_quarter_width, 0, w * .75, upper_band_height)  # Presenter name region
     location_clip = create_centered_textclip_with_respect_to_region(region, strategy.conference_theme.conference_title, text_style)
 
-    region = Region(0, h * .875, w * .25, h * .125)  # Presenter name region
+    region = Region(0, h * .875, left_quarter_width, upper_band_height)  # Presenter name region
     presenter_name_clip = create_centered_textclip_with_respect_to_region_multiline(region, video_info.speaker_name, text_style)
 
     title_text = video_info.title
-    region = Region(w * .25, h * .875, w * .75, h * .125)  # Presenter name region
+    region = Region(left_quarter_width, h * .875, w * .75, upper_band_height)  # Presenter name region
     title_clip = create_centered_textclip_with_respect_to_region(region, title_text, text_style)
 
     # TODO center the title and the town name
 
     presentation_clips = [
         background_color,
-        logo_100x240.set_position((175, 0)), #  region-width / 2 - size/2 = 175
+        logo_clip, #  region-width / 2 - size/2 = 175
         slides_clip.set_position(("right", "center")),
         presentation_clip_480x540.set_position(("left", "center")),
         location_clip,
