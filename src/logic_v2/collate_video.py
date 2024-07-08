@@ -130,7 +130,7 @@ def collate_main_part(video_info: PresentationInfo, generation_strategy: Generat
     presentation_composition = compose_main_video(length, presentation_clip, slides_clip, target_resolution, video_info, generation_strategy)
     sound_clip = create_sound_clip(length, presentation_file_path, start, video_collage_info.sound_file)
 
-    fade_duration = 1.1
+    fade_duration = 1.6
     intro = generation_strategy.create_intro_clip(video_info)
 
     # blend intro and main part
@@ -210,6 +210,7 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
     return CompositeVideoClip(presentation_clips, size=target_resolution).subclip(0, length)
 
 
+# TODO remove superfluous intro_duration
 def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition):
     def fadeout(clip):
         return transitions.crossfadeout(clip,  fade_duration)
@@ -219,8 +220,8 @@ def blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation
 
     # speed trick: use compose for fade and avoid it for speed for the rest of the video
     first_part = concatenate_videoclips([fadeout(intro), fadein(presentation_composition)], method="compose") \
-        .set_duration(intro_duration)
-    video_parts = [first_part, presentation_composition.set_start(first_part.end)]
+        .set_duration(intro_duration + fade_duration)
+    video_parts = [first_part, presentation_composition.subclip(fade_duration)]
     full_video: VideoClip = concatenate_videoclips(video_parts)
 
     return full_video
