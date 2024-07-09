@@ -46,7 +46,7 @@ sound:
 slides:
 ```
 
-necessary directory layout: 
+It uses conventions for the file names and locations. Necessary directory layout: 
 ```
 .
 ├── intro.mp4       
@@ -57,7 +57,7 @@ necessary directory layout:
     ├── slides.mp4
     └── video.mp4
 ```
-
+The suffixes don't have to be an exact match, for instance for a video file can be anything from .mp4, .avi, .mkv, .mov etc. An image can be .jpg, .jpeg, .png, .webp. Audio can be .mp3, .m4a, .mpg, ...
 
 If the intro has to be dynamically generated, replace the intro file with 
 ```
