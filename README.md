@@ -146,6 +146,35 @@ Either provide a ready-made intro file or generate one automatically with:
 
 ---
 
+## Fetch Talk Info
+
+This script allows you to retrieve information from a HumanTalks event and generate YAML configuration files for each talk, as well as download the speakers' images.
+
+```bash
+poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/609
+```
+
+### Directory Structure After Running the Script
+
+The `to-proceed` directory will have the following structure:
+
+```
+to-proceed/
+├── talk1/
+│   ├── speaker.webp      # Speaker's image
+│   └── config.yml        # YAML configuration file with talk information
+├── talk2/
+│   ├── speaker.webp      # Speaker's image
+│   └── config.yml        # YAML configuration file with talk information
+├── talk3/
+│   ├── speaker.webp      # Speaker's image
+│   └── config.yml        # YAML configuration file with talk information
+└── ...
+
+```
+
+---
+
 ## Docker and Docker Compose (Volume Access)
 
 To set up your environment using Docker Compose, follow these steps:
