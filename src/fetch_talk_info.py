@@ -1,10 +1,12 @@
+import typer
 import requests
 from bs4 import BeautifulSoup
 import os
 import yaml
 import urllib.parse
 import shutil
-import argparse
+
+app = typer.Typer()
 
 # Fonction pour télécharger une image à partir d'une URL
 def download_image(url, folder, filename):
@@ -101,22 +103,14 @@ def create_yaml_files(talk_data):
             yaml.dump(yaml_content, file, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
 # Fonction principale pour gérer les arguments et lancer le script
-def main():
-    parser = argparse.ArgumentParser(description="Récupère des informations sur un événement Humantalks et génère des fichiers YAML.")
-    parser.add_argument(
-        'url',
-        type=str,
-        help="L'URL complète de la page de l'événement"
-    )
-
-    args = parser.parse_args()
-
-    print(f"Récupération des informations pour l'événement : {args.url}")
+@app.command()
+def main(url: str = typer.Argument(..., help="L'URL complète de la page de l'événement")):
+    print(f"Récupération des informations pour l'événement : {url}")
 
     # Exécution des fonctions
-    talk_data = fetch_talk_info(args.url)
+    talk_data = fetch_talk_info(url)
     create_yaml_files(talk_data)
     print(f"Les informations des talks et les images ont été récupérées et sauvegardées dans 'to-proceed'.")
 
 if __name__ == "__main__":
-    main()
+    app()
