@@ -168,7 +168,7 @@ docker-compose exec alpescraft-videos /bin/bash
 Once inside the container, you can generate a test video by running:
 
 ```sh
-poetry run python src/produce_video_v2.py ht to-process/talk1/config.yml 7 --no-intro
+poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml 7 --no-intro
 ```
 
 ### Generate the Full Video
@@ -176,7 +176,7 @@ poetry run python src/produce_video_v2.py ht to-process/talk1/config.yml 7 --no-
 To generate the full video, run:
 
  ```sh
- poetry run python src/produce_video_v2.py ht to-process/talk1/config.yml
+ poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml
  ```
 
 ### Docker Compose Cheat Sheet
