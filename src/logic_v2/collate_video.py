@@ -156,7 +156,11 @@ def collate_main_part(video_info: PresentationInfo, generation_strategy: Generat
 
 
 def create_presentation_clip(length, presentation_file_path, start):
-    presentation_clip: VideoClip = VideoFileClip(presentation_file_path, target_resolution=(960, 540)) \
+    # presentation_clip: VideoClip = VideoFileClip(presentation_file_path, target_resolution=(960, 540)) \
+    h = int(1080 * .75)
+    w = int(1920 * .75)
+    base_clip = VideoFileClip(presentation_file_path, target_resolution=(h, w))
+    presentation_clip: VideoClip = crop.crop(base_clip, width=480, height=810, x_center=w / 2, y_center=h / 2) \
         .subclip(start, start + length)
     presentation_clip.set_audio(None)
     return presentation_clip
@@ -191,7 +195,8 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
                        strategy: GenerationStrategy):
 
     w, h = target_resolution
-    presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=540/2, y_center=480)
+    presentation_clip_480x540 = presentation_clip
+    # presentation_clip_480x540 = crop.crop(presentation_clip, width=480, height=810, x_center=540/2, y_center=480)
 
     left_quarter_width = w * .25   # 480
     upper_band_height = h * .125   # 143

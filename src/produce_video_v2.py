@@ -36,9 +36,9 @@ def do_it_all(video_info: PresentationInfo, filename: str, generation_strategy: 
     elif generation_strategy.task == "video-nointro":
         full_video = collate_main_part_without_intro(video_info, generation_strategy)
         write_video(full_video, output_file_prefix + "-out.mp4")
-        write_thumbnail(full_video, output_file_prefix + "-thumbnail.png", 3+5)
+        write_thumbnail(full_video, output_file_prefix + "-thumbnail.png", 10)
     elif generation_strategy.task == "thumbnail":
-        full_video = collate_main_part(video_info, generation_strategy)
+        full_video = collate_main_part_without_intro(video_info, generation_strategy)
         write_thumbnail(full_video, output_file_prefix + "-thumbnail.png", 3)
 
 
