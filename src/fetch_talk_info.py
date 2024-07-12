@@ -85,11 +85,6 @@ def create_yaml_files(talk_data):
 
         # Créer le fichier YAML
         yaml_content = {
-            'conference': {
-                'jingle': 'to-process/jingle.mp4',
-                'logo': 'to-process/ht_logo.webp',
-                'background_image': 'to-process/HT background image.jpeg',
-            },
             'title': talk['title'],
             'speaker_name': talk['speaker_name'],
             'speaker': {
