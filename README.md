@@ -137,6 +137,16 @@ to-proceed/
 └── ...
 
 ```
+---
+
+## Generate thumbnail
+
+This script allows you to retrieve information from a HumanTalks event and generate YAML configuration files for each talk, as well as download the speakers' images.
+
+```bash
+poetry run python src/make_thumbnail.py
+```
+
 
 ---
 
