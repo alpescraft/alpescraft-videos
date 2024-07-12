@@ -1,8 +1,3 @@
-conference:
-  jingle: "template/ht/jingle.mp4"
-  logo: "template/ht/ht_logo.webp"
-  background_image: "template/ht/HT background image.jpeg"
-
 title: "Core Protocols : recette magique pour une équipe de développement qui déchire"
 speaker_name: "Emmanuel Etasse"
 
