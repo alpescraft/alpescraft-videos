@@ -37,6 +37,7 @@ background.paste(logo, (64, 64), logo)
 # Load the talk configuration
 with open("template/ht/talk1/config.yml", 'r') as stream:
     config = yaml.safe_load(stream)
+
 # Load the speaker image and resize it
 speaker_image = Image.open("template/ht/talk1/speaker.webp").resize((250, 250))
 
@@ -47,13 +48,6 @@ mask_radius = min(speaker_image.size) // 2
 mask_center = (speaker_image.size[0] // 2, speaker_image.size[1] // 2)
 draw.ellipse((mask_center[0] - mask_radius, mask_center[1] - mask_radius, mask_center[0] + mask_radius, mask_center[1] + mask_radius), fill=255)
 
-# Draw a white circle of 15px larger than the mask
-# circle_radius = mask_radius + 15
-# border = Image.new("L", speaker_image.size, 0)
-# draw_border = ImageDraw.Draw(speaker_mask)
-# draw.ellipse((mask_center[0] - circle_radius, mask_center[1] - circle_radius, mask_center[0] + circle_radius, mask_center[1] + circle_radius), fill=255)
-
-# Create a new image with the same size as the speaker image
 # Create a new image that is 15px larger than the speaker image size
 circle_size = (speaker_image.size[0] + 30, speaker_image.size[1] + 30)
 circle = Image.new("RGBA", circle_size, (0, 0, 0, 0))
@@ -66,7 +60,6 @@ draw_circle.ellipse((circle_size[0] // 2 - circle_radius, circle_size[1] // 2 - 
 # Apply the circular mask to the speaker image
 speaker_image = Image.composite(speaker_image, Image.new("RGBA", speaker_image.size, (0, 0, 0, 0)), speaker_mask)
 
-
 # Create a font for the title and speaker name
 title_font = ImageFont.truetype("DejaVuSansMono.ttf", 64)
 speaker_name_font = ImageFont.truetype("DejaVuSansMono.ttf", 36)
@@ -74,26 +67,36 @@ speaker_name_font = ImageFont.truetype("DejaVuSansMono.ttf", 36)
 # Draw the title on the background
 draw = ImageDraw.Draw(background)
 title_text = config['title']
-multiline_text(draw, title_text, title_font, 1400, 1000, 64, 192 + logo.height, fill=(255, 255, 255), align="left")
+title_x = 64
+title_y = 192 + logo.height
+title_max_width = 1400
+title_max_height = 1000
+title_fill = (255, 255, 255)
+title_align = "left"
+multiline_text(draw, title_text, title_font, title_max_width, title_max_height, title_x, title_y, title_fill, title_align)
 
-# Draw the speaker name on the background
 # Draw the speaker name on the background
 speaker_name_text = config['speaker_name']
 speaker_image_x = 1400 + 113
 speaker_image_y = 192 + logo.height
 speaker_name_width = draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[2] - draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[0]
 speaker_name_height = draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[3] - draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[1]
-speaker_name_x = background.width - speaker_name_width - 48
-speaker_name_y = speaker_image_y + speaker_image.height
-multiline_text(draw, speaker_name_text, speaker_name_font, 476, speaker_name_height, speaker_name_x, speaker_name_y, fill=(255, 255, 255), align="center")
+speaker_name_max_width = 476
+speaker_name_x = background.width - speaker_name_width - 48 - (speaker_name_max_width - speaker_name_width) // 2
+speaker_name_y = speaker_image_y + 64 + speaker_image.height
+speaker_name_fill = (255, 255, 255)
+speaker_name_align = "center"
+draw.text((speaker_name_x, speaker_name_y), speaker_name_text, font=speaker_name_font, fill=speaker_name_fill)
 
 
-# Paste the speaker image on the background
-# speaker_image_y = 64 + logo.height + 1000 + 64
 
 # Paste the white circle onto the background
 background.paste(circle, (speaker_image_x, speaker_image_y), circle)
-background.paste(speaker_image, (speaker_image_x + 15, speaker_image_y + 15), speaker_image)
+
+# Paste the speaker image onto the white circle
+speaker_image_x_offset = 15
+speaker_image_y_offset = 15
+background.paste(speaker_image, (speaker_image_x + speaker_image_x_offset, speaker_image_y + speaker_image_y_offset), speaker_image)
 
 # Convert the image to RGB mode before saving
 background = background.convert("RGB")
