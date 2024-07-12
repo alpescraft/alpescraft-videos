@@ -26,7 +26,7 @@ def create_centered_textclip_with_respect_to_region_multiline(region, text, text
     fontsize_width = region.region_width / text_len * 1.45
     fontsize_height = region.region_height / (len(speaker_names)+.3)
     fontsize = min(fontsize_width, fontsize_height)
-    presenter_name_clip = TextClip(text, fontsize=fontsize, align='center', **text_style)
+    presenter_name_clip = TextClip(text, font="DejaVu-Sans-Mono", fontsize=fontsize, align='center', **text_style)
     center_pos = region.calculate_center(*presenter_name_clip.size)
     presenter_name_clip = presenter_name_clip.set_position(center_pos)
     return presenter_name_clip
@@ -37,7 +37,7 @@ def create_centered_textclip_with_respect_to_region(region, text, text_style):
     fontsize_width = region.region_width / text_len * 1.45
     fontsize_height = region.region_height / 1.7
     fontsize = min(fontsize_width, fontsize_height)
-    presenter_name_clip = TextClip(text, fontsize=fontsize, align='center', **text_style)
+    presenter_name_clip = TextClip(text, font="DejaVu-Sans-Mono", fontsize=fontsize, align='center', **text_style)
     center_pos = region.calculate_center(*presenter_name_clip.size)
     presenter_name_clip = presenter_name_clip.set_position(center_pos)
     return presenter_name_clip

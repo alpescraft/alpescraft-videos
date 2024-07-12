@@ -1,0 +1,14 @@
+title: "Manipulation d'une collection d'éléments : les limites de l'approche impérative, et introduction à l'approche fonctionnelle."
+speaker_name: Robin Moussu
+
+speaker:
+  parts:
+    - start: "0:00"
+      stop: "11:30"
+
+
+sound:
+  extra_offset: 0.0
+
+slides:
+
