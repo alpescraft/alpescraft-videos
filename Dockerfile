@@ -26,8 +26,8 @@ RUN poetry install --no-root
 COPY . .
 
 # Modifiez le fichier policy.xml pour permettre les opérations nécessaires
-RUN sed -i 's/rights="none"/rights="read|write"/g' /etc/ImageMagick-6/policy.xml && \
-    sed -i 's/rights="none"/rights="read|write"/g' /etc/ImageMagick-7/policy.xml || true \
+RUN sed -i 's/rights="none"/rights="read|write"/g' /etc/ImageMagick-6/policy.xml || true && \
+    sed -i 's/rights="none"/rights="read|write"/g' /etc/ImageMagick-7/policy.xml || true
 
 # Démarrer une session shell interactive
 CMD ["/bin/bash"]
