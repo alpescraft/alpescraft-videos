@@ -1,0 +1,19 @@
+conference:
+  jingle: "to-process/jingle.mp4"
+  logo: "to-process/ht_logo.webp"
+  background_image: "to-process/HT background image.jpeg"
+
+title: "Le syndrome de l'imposteur : saisir sa légitimité au travail"
+speaker_name: Aurelien Goux
+
+speaker:
+  parts:
+    - start: "0:00"
+      stop: "10:12"
+
+
+sound:
+  extra_offset: 0.0
+
+slides:
+

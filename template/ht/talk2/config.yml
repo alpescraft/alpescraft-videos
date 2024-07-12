@@ -1,0 +1,19 @@
+conference:
+  jingle: "to-process/jingle.mp4"
+  logo: "to-process/ht_logo.webp"
+  background_image: "to-process/HT background image.jpeg"
+
+title: "L'art de la négociation, c'est l'affaire de tous."
+speaker_name: Victor Vuarnet
+
+speaker:
+  parts:
+    - start: "0:00"
+      stop: "09:51"
+
+
+sound:
+  extra_offset: 0.0
+
+slides:
+
