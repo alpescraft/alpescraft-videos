@@ -2,11 +2,10 @@ import os
 from dataclasses import dataclass, field
 from os import path
 from os.path import dirname
-from pprint import pprint
-from typing import List, Optional, Any
+from typing import List, Optional
 
-from logic.ClipSection import ClipSection
-from logic.MinutesAndSeconds import MinutesSeconds
+from logic_v2.ClipSection import ClipSection
+from logic_v2.MinutesAndSeconds import MinutesSeconds
 from logic_v2.media_searcher import MediaSearcher, MediaType
 
 

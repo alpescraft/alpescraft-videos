@@ -1,7 +1,5 @@
-import pytest
-
-from logic.ClipSection import ClipSection
-from logic.MinutesAndSeconds import MinutesSeconds
+from logic_v2.ClipSection import ClipSection
+from logic_v2.MinutesAndSeconds import MinutesSeconds
 from logic_v2.PresentationInfo import PresentationInfo, ReferenceFile, ClipFile
 
 CONF_PATH = "../examples/example-conf.yml"
