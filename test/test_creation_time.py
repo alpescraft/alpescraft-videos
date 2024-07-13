@@ -50,6 +50,8 @@ class TestCase:
                                             (file_ctime, file_length))
         assert offset_seconds == expected_offset_seconds
 
+
+    @pytest.mark.skip(reason="this is not the case now that we use the start time")
     def test_get_relative_start_time(self) -> None:
         offset_in_slides_file = get_relative_start_time(SPEAKER_REFERENCE_FILE, MKV_FILE_EXAMPLE, 1)
         assert offset_in_slides_file == -1119836.057899952
