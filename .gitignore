@@ -31,3 +31,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+
+
+src/scripts/circular-mask-*
