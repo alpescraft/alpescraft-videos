@@ -1,6 +1,6 @@
 import pytest
 
-from logic_v2.media_searcher import MediaType, MediaSearcher
+from logic.media_searcher import MediaType, MediaSearcher
 
 
 @pytest.mark.parametrize("extension", [

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from logic_v2.MinutesAndSeconds import MinutesSeconds
+from logic.MinutesAndSeconds import MinutesSeconds
 
 
 @dataclass

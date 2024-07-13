@@ -12,11 +12,11 @@ from moviepy.video.compositing.concatenate import concatenate_videoclips
 from moviepy.video.fx import resize, crop
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
-from logic_v2.PresentationInfo import PresentationInfo
-from logic_v2.VideoCollageInfo import VideoCollageInfo
-from logic_v2.region import Region, create_centered_textclip_with_respect_to_region_multiline, \
+from logic.PresentationInfo import PresentationInfo
+from logic.VideoCollageInfo import VideoCollageInfo
+from logic.region import Region, create_centered_textclip_with_respect_to_region_multiline, \
     create_centered_textclip_with_respect_to_region
-from logic_v2.start_time import get_relative_start_time
+from logic.start_time import get_relative_start_time
 
 
 class ConferenceTheme(ABC):

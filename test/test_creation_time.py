@@ -3,8 +3,8 @@ from os.path import getctime
 
 import pytest
 
-from logic_v2.collate_video import collate_main_part
-from logic_v2.start_time import get_offset_seconds, get_media_info, get_relative_start_time, get_offset_seconds_old
+from logic.collate_video import collate_main_part
+from logic.start_time import get_offset_seconds, get_media_info, get_relative_start_time, get_offset_seconds_old
 
 
 SPEAKER_REFERENCE_FILE = "../test_files/ht-jan-01-speaker.mp4"

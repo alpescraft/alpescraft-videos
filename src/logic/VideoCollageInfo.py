@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from logic_v2.PresentationInfo import PresentationInfo, ClipFile
+from logic.PresentationInfo import PresentationInfo, ClipFile
 
 
 @dataclass

@@ -3,8 +3,8 @@ from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 from moviepy.video.fx import crop, resize
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
-from logic_v2.PresentationInfo import PresentationInfo
-from logic_v2.region import Region, create_centered_textclip_with_respect_to_region
+from logic.PresentationInfo import PresentationInfo
+from logic.region import Region, create_centered_textclip_with_respect_to_region
 
 
 def intro_clip(video_info: PresentationInfo, intro_duration: int) -> CompositeVideoClip:

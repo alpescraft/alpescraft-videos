@@ -6,8 +6,8 @@ from os.path import dirname, basename
 
 from moviepy.video.fx import resize
 
-from logic_v2.PresentationInfo import PresentationInfo
-from logic_v2.collate_video import collate_main_part, collate_main_part_without_intro, GenerationStrategy, \
+from logic.PresentationInfo import PresentationInfo
+from logic.collate_video import collate_main_part, collate_main_part_without_intro, GenerationStrategy, \
     AlpesCraftConferenceTheme, HTConferenceTheme
 
 """

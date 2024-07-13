@@ -21,7 +21,7 @@ poetry install
 ## Usage
 
 ```sh
-python3 src/produce_video_v2.py [conference_theme] session-config.yaml [max time seconds] <--no-intro>
+python3 src/produce_video.py [conference_theme] session-config.yaml [max time seconds] <--no-intro>
 ```
 
 - `conference_theme` is either `ht` or `alpescraft`. It guides the background and the intro.
@@ -31,7 +31,7 @@ The timing is never completely right. To calibrate, the current best solution is
 check the result, and then adapt the `extra_offset` to the sound file. For example:
 
 ```sh
-python3 src/produce_video_v2.py ht session-config.yaml 7 --no-intro
+python3 src/produce_video.py ht session-config.yaml 7 --no-intro
 ```
 
 `config.yml` is a file of the form (in its simplest form):
@@ -162,7 +162,7 @@ docker-compose exec alpescraft-videos /bin/bash
 Once inside the container, you can generate a test video by running:
 
 ```sh
-poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml 7 --no-intro
+poetry run python src/produce_video.py ht template/ht/talk1/config.yml 7 --no-intro
 ```
 
 #### Generate the Full Video
@@ -170,7 +170,7 @@ poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml 7 --no
 To generate the full video, run:
 
 ```sh
-poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml
+poetry run python src/produce_video.py ht template/ht/talk1/config.yml
 ```
 
 #### Docker Compose Cheat Sheet

@@ -4,9 +4,9 @@ from os import path
 from os.path import dirname
 from typing import List, Optional
 
-from logic_v2.ClipSection import ClipSection
-from logic_v2.MinutesAndSeconds import MinutesSeconds
-from logic_v2.media_searcher import MediaSearcher, MediaType
+from logic.ClipSection import ClipSection
+from logic.MinutesAndSeconds import MinutesSeconds
+from logic.media_searcher import MediaSearcher, MediaType
 
 
 @dataclass

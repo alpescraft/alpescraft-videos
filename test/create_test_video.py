@@ -1,5 +1,5 @@
-from logic_v2.collate_video import collate_main_part
-from logic_v2.VideoCollageInfo import VideoCollageInfo
+from logic.collate_video import collate_main_part
+from logic.VideoCollageInfo import VideoCollageInfo
 
 if __name__ == '__main__':
     collage_info = VideoCollageInfo(
