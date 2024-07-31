@@ -1,0 +1,16 @@
+services:
+  alpescraft-videos:
+    container_name: alpescraft-videos-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: tail -f /dev/null # Maintient le conteneur en cours d'exécution pour les changements de fichiers et le développement
+
+    # Vous pouvez ajouter des ports ou des variables d'environnement si nécessaire
+    # ports:
+    #   - "8000:8000"
+    # environment:
+    #   - ENV_VAR_NAME=value
