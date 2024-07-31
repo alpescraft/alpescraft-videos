@@ -1,27 +1,52 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 import yaml
-import requests
-from io import BytesIO
 import textwrap
 
 # Define the file paths
-BACKGROUND_PATH = "template/ht/background.png"
-LOGO_PATH = "template/ht/logo-no-bg.png"
+BACKGROUND_PATH = "template/ht/background"
+LOGO_PATH = "template/ht/logo-no-bg"
+FONT_PATH = "template/ht/Franklin Gothic Demi Cond Regular.ttf"
+
 CONFIG_PATH = "template/ht/talk1/config.yml"
-SPEAKER_IMAGE_PATH = "template/ht/talk1/speaker.webp"
+SPEAKER_IMAGE_PATH = "template/ht/talk1/speaker"
 THUMBNAIL_PATH = "template/ht/talk1/thumbnail.jpg"
 
 # Define the supported image extensions
-IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
+IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp"]
+
+def find_file_with_extension(base_path):
+    directory = os.path.dirname(base_path)
+    filename = os.path.basename(base_path)
+    for ext in IMAGE_EXTENSIONS:
+        full_path = os.path.join(directory, f"{filename}.{ext}")
+        if os.path.exists(full_path):
+            return full_path
+    raise FileNotFoundError(f"No file found with base name: {base_path}")
+
+def load_config(config_path):
+    with open(config_path, 'r') as stream:
+        return yaml.safe_load(stream)
+
+def create_background(background_path):
+    background_file = find_file_with_extension(background_path)
+    background = Image.open(background_file).convert("RGBA")
+    overlay = Image.new('RGBA', background.size, (101, 41, 86, 230))
+    return Image.alpha_composite(background, overlay)
+
+def add_logo(background, logo_path, logo_x, logo_y, logo_width):
+    logo_file = find_file_with_extension(logo_path)
+    logo = Image.open(logo_file).convert("RGBA")
+    logo_height = int(logo_width * logo.size[1] / logo.size[0])
+    logo = logo.resize((logo_width, logo_height))
+    background.paste(logo, (logo_x, logo_y), logo)
+    return background, logo
 
 def multiline_text(draw, text, font, max_width, max_height, x, y, fill, align="center"):
     lines = textwrap.wrap(text, width=int(max_width / draw.textbbox((0, 0), "A", font=font)[2]))
-    line_height = draw.textbbox((0, 0), "A", font=font)[3] - draw.textbbox((0, 0), "A", font=font)[1]
     y_text = y
     for line in lines:
-        width = draw.textbbox((0, 0), line, font=font)[2] - draw.textbbox((0, 0), line, font=font)[0]
-        height = draw.textbbox((0, 0), line, font=font)[3] - draw.textbbox((0, 0), line, font=font)[1]
+        width, height = draw.textbbox((0, 0), line, font=font)[2:4]
         if align == "left":
             draw.text((x, y_text), line, font=font, fill=fill)
         elif align == "center":
@@ -30,91 +55,85 @@ def multiline_text(draw, text, font, max_width, max_height, x, y, fill, align="c
             draw.text((x + max_width - width, y_text), line, font=font, fill=fill)
         y_text += height
 
-# Load the background image
-background = Image.open(BACKGROUND_PATH).convert("RGBA")
+def add_title(background, config, font_path, title_x, title_y, title_max_width, title_max_height, title_font_size):
+    draw = ImageDraw.Draw(background)
+    title_font = ImageFont.truetype(font_path, title_font_size)
+    title_text = config['title']
+    multiline_text(draw, title_text, title_font, title_max_width, title_max_height, title_x, title_y, (255, 255, 255), "left")
+    return background
 
-# Create a semi-transparent overlay
-overlay = Image.new('RGBA', background.size, (101, 41, 86, 230))
+def create_circular_avatar(image_path, size, border_size):
+    avatar_file = find_file_with_extension(image_path)
+    avatar = Image.open(avatar_file).resize((size, size))
+    mask = Image.new("L", avatar.size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0, size, size), fill=255)
 
-# Paste the overlay on the background
-background = Image.alpha_composite(background, overlay)
+    output = Image.new("RGBA", (size + border_size * 2, size + border_size * 2), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(output)
+    draw.ellipse((0, 0, size + border_size * 2, size + border_size * 2), fill=(255, 255, 255, 255))
+    output.paste(avatar, (border_size, border_size), mask)
 
-# Load the logo image and resize it
-logo = Image.open(LOGO_PATH).convert("RGBA").resize((895, int(895 * Image.open(LOGO_PATH).size[1] / Image.open(LOGO_PATH).size[0])))
+    return output
 
-# Paste the logo on the background
-background.paste(logo, (64, 64), logo)
+def add_speaker_info(background, config, avatar, font_path, avatar_x, avatar_y, avatar_size, name_y, name_font_size):
+    draw = ImageDraw.Draw(background)
+    speaker_name_font = ImageFont.truetype(font_path, name_font_size)
+    speaker_name_text = config['speaker_name']
 
-# Load the talk configuration
-with open(CONFIG_PATH, 'r') as stream:
-    config = yaml.safe_load(stream)
+     # Add the avatar to the background
+    background.paste(avatar, (avatar_x, avatar_y), avatar)
 
-# Load the speaker image and resize it
-speaker_image_path = SPEAKER_IMAGE_PATH
-if not os.path.splitext(speaker_image_path)[1][1:] in IMAGE_EXTENSIONS:
-    raise ValueError(f"Unsupported image extension: {os.path.splitext(speaker_image_path)[1]}")
-speaker_image = Image.open(speaker_image_path).resize((250, 250))
+    # Calculate the center x-coordinate for the avatar
+    avatar_center_x = avatar_x + avatar_size // 2
 
-# Create a circular mask for the speaker image
-speaker_mask = Image.new("L", speaker_image.size, 0)
-draw = ImageDraw.Draw(speaker_mask)
-mask_radius = min(speaker_image.size) // 2
-mask_center = (speaker_image.size[0] // 2, speaker_image.size[1] // 2)
-draw.ellipse((mask_center[0] - mask_radius, mask_center[1] - mask_radius, mask_center[0] + mask_radius, mask_center[1] + mask_radius), fill=255)
+    # Measure the width of the speaker name text using textbbox
+    text_bbox = draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)
+    name_width = text_bbox[2] - text_bbox[0]
 
-# Create a new image that is 15px larger than the speaker image size
-circle_size = (speaker_image.size[0] + 30, speaker_image.size[1] + 30)
-circle = Image.new("RGBA", circle_size, (0, 0, 0, 0))
-draw_circle = ImageDraw.Draw(circle)
+    # Calculate the x-coordinate for the speaker name to be centered under the avatar
+    name_x = avatar_center_x - name_width // 2
 
-# Draw a white circle of 15px larger than the mask
-circle_radius = min(circle_size) // 2
-draw_circle.ellipse((circle_size[0] // 2 - circle_radius, circle_size[1] // 2 - circle_radius, circle_size[0] // 2 + circle_radius, circle_size[1] // 2 + circle_radius), fill=(255, 255, 255, 255))
+    # Draw the speaker name on the background
+    draw.text((name_x, name_y), speaker_name_text, font=speaker_name_font, fill=(255, 255, 255))
 
-# Apply the circular mask to the speaker image
-speaker_image = Image.composite(speaker_image, Image.new("RGBA", speaker_image.size, (0, 0, 0, 0)), speaker_mask)
+    return background
 
-# Create a font for the title and speaker name
-title_font = ImageFont.truetype("DejaVuSansMono.ttf", 64)
-speaker_name_font = ImageFont.truetype("DejaVuSansMono.ttf", 36)
+def main():
+    config = load_config(CONFIG_PATH)
+    background = create_background(BACKGROUND_PATH)
 
-# Draw the title on the background
-draw = ImageDraw.Draw(background)
-title_text = config['title']
-title_x = 64
-title_y = 192 + logo.height
-title_max_width = 1400
-title_max_height = 1000
-title_fill = (255, 255, 255)
-title_align = "left"
-multiline_text(draw, title_text, title_font, title_max_width, title_max_height, title_x, title_y, title_fill, title_align)
+    # Logo parameters
+    logo_x, logo_y = 65, 65
+    logo_width = 895
 
-# Draw the speaker name on the background
-speaker_name_text = config['speaker_name']
-speaker_image_x = 1400 + 113
-speaker_image_y = 192 + logo.height
-speaker_name_width = draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[2] - draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[0]
-speaker_name_height = draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[3] - draw.textbbox((0, 0), speaker_name_text, font=speaker_name_font)[1]
-speaker_name_max_width = 476
-speaker_name_x = background.width - speaker_name_width - 48 - (speaker_name_max_width - speaker_name_width) // 2
-speaker_name_y = speaker_image_y + 64 + speaker_image.height
-speaker_name_fill = (255, 255, 255)
-speaker_name_align = "center"
-draw.text((speaker_name_x, speaker_name_y), speaker_name_text, font=speaker_name_font, fill=speaker_name_fill)
+    # Title parameters
+    title_x, title_y = 110, 580
+    title_max_width, title_max_height = 1450, 400
+    title_font_size = 64  # You may want to adjust this based on the new dimensions
 
-# Paste the white circle onto the background
-background.paste(circle, (speaker_image_x, speaker_image_y), circle)
+    # Avatar parameters
+    avatar_size = 250
+    avatar_border_size = 8
+    avatar_x, avatar_y = 1440, 580
 
-# Paste the speaker image onto the white circle
-speaker_image_x_offset = 15
-speaker_image_y_offset = 15
-background.paste(speaker_image, (speaker_image_x + speaker_image_x_offset, speaker_image_y + speaker_image_y_offset), speaker_image)
+    # Speaker name parameters
+    name_font_size = 36  # You may want to adjust this based on the new layout
+    name_y = 861
 
-# Convert the image to RGB mode before saving
-background = background.convert("RGB")
+    # Add the logo and title to the background
+    background, logo = add_logo(background, LOGO_PATH, logo_x, logo_y, logo_width)
+    background = add_title(background, config, FONT_PATH, title_x, title_y, title_max_width, title_max_height, title_font_size)
 
-# Save the final image
-thumbnail_path = THUMBNAIL_PATH
-if not os.path.splitext(thumbnail_path)[1][1:] in IMAGE_EXTENSIONS:
-    raise ValueError(f"Unsupported image extension: {os.path.splitext(thumbnail_path)[1]}")
-background.save(thumbnail_path)
+    # Create the avatar
+    avatar = create_circular_avatar(SPEAKER_IMAGE_PATH, avatar_size, avatar_border_size)
+
+    # Add speaker info (including the avatar and speaker name)
+    background = add_speaker_info(background, config, avatar, FONT_PATH, avatar_x, avatar_y, avatar_size, name_y, name_font_size)
+
+    # Convert the background to RGB and save it
+    background = background.convert("RGB")
+    background.save(THUMBNAIL_PATH)
+
+if __name__ == "__main__":
+    main()
