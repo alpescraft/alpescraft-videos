@@ -1,0 +1,37 @@
+# local files
+.DS_Store
+.idea/
+./*.mp4
+./*.mp3
+./*.png
+./*.mkv
+myHolidays_edited.*
+test/__pycache__/
+__pycache__
+/work/
+/data/
+
+# local env files
+.env
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/local.log
+/log/
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+
+src/scripts/circular-mask-*
