@@ -1,22 +1,31 @@
 # Automated Video Editing for Meetup and Conference Videos
 
-Handle post-production in an automated fashion. Joining video track, slides track, and sound track(s) is done by using
-file dates to sync the various sources.
+Handle post-production in an automated fashion. Joining video track, slides track, and sound track(s) is done by using file dates to sync the various sources. All you need to do is specify the start and end time of the main video. Ensure all recording devices are time-synced, for instance, by connecting them to the same Wi-Fi network.
 
-All you need to do is specify the start and end time of the main video. Ensure all recording devices are time-synced,
-for instance, by connecting them to the same Wi-Fi network.
-
-## Rationale
-
-Post-production allows for significant error recovery in case something went wrong. The drawback is that it is
-labor-intensive. Hence, automating that part brings the best of both worlds.
-
-## Install
+## Key Commands
 
 ```sh
-pip3 install poetry
-poetry install
+poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml 7 --no-intro
+poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml
+poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/609
+poetry run python src/make_thumbnail.py ht template/ht/talk1/config.yml
 ```
+
+## Features
+
+- Transition-fade between intro and main video
+- When capturing, you can start any time; all you have to provide is the start time of one video
+- Automatic adjustment of tracks based on media date metadata
+- `extra_offset` can be used to compensate for bad dates
+
+### Intro
+
+Either provide a ready-made intro file or generate one automatically with:
+- Presentation title
+- Speaker name
+- Background
+- Logo
+- Jingle
 
 ## Usage
 
@@ -27,8 +36,7 @@ python3 src/produce_video_v2.py [conference_theme] session-config.yaml [max time
 - `conference_theme` is either `ht` or `alpescraft`. It guides the background and the intro.
 - `max_time_seconds` is used when you want to generate a preview and avoid too much processing time.
 
-The timing is never completely right. To calibrate, the current best solution is to generate a 7-second long video,
-check the result, and then adapt the `extra_offset` to the sound file. For example:
+The timing is never completely right. To calibrate, the current best solution is to generate a 7-second long video, check the result, and then adapt the `extra_offset` to the sound file. For example:
 
 ```sh
 python3 src/produce_video_v2.py ht session-config.yaml 7 --no-intro
@@ -58,28 +66,27 @@ It uses conventions for the file names and locations. Necessary directory layout
 .
 └── to-process
     ├── jingle.mp4               # Jingle video file for the intro (if dynamically generated)
-    ├── logo.webp                 # Logo image for the conference theme
+    ├── logo.webp                # Logo image for the conference theme
     ├── talk1                    # Directory for the first talk/session
-    │   ├── config.yml          # Configuration file for the video processing
-    │   ├── slides.mkv          # Video file of the slides for this talk
-    │   ├── sound.mp3           # Audio file of the talk's sound
-    │   ├── speaker.mp4         # Video file of the speaker for this talk
+    │   ├── config.yml           # Configuration file for the video processing
+    │   ├── slides.mkv           # Video file of the slides for this talk
+    │   ├── sound.mp3            # Audio file of the talk's sound
+    │   ├── speaker.mp4          # Video file of the speaker for this talk
     ├── talk2                    # Directory for the second talk/session
-    │   ├── config.yml          # Configuration file for the video processing
-    │   ├── slides.mkv          # Video file of the slides for this talk
-    │   ├── sound.mp3           # Audio file of the talk's sound
-    │   ├── speaker.mp4         # Video file of the speaker for this talk
+    │   ├── config.yml           # Configuration file for the video processing
+    │   ├── slides.mkv           # Video file of the slides for this talk
+    │   ├── sound.mp3            # Audio file of the talk's sound
+    │   ├── speaker.mp4          # Video file of the speaker for this talk
     ├── talk3                    # Directory for the third talk/session
-    │   ├── config.yml          # Configuration file for the video processing
-    │   ├── slides.mkv          # Video file of the slides for this talk
-    │   ├── sound.mp3           # Audio file of the talk's sound
-    │   ├── speaker.mp4         # Video file of the speaker for this talk
+    │   ├── config.yml           # Configuration file for the video processing
+    │   ├── slides.mkv           # Video file of the slides for this talk
+    │   ├── sound.mp3            # Audio file of the talk's sound
+    │   ├── speaker.mp4          # Video file of the speaker for this talk
     └── talk4                    # Directory for the fourth talk/session
-        ├── config.yml          # Configuration file for the video processing
-        ├── slides.mkv          # Video file of the slides for this talk
-        ├── sound.mp3           # Audio file of the talk's sound
-        ├── speaker.mp4         # Video file of the speaker for this talk
-
+        ├── config.yml           # Configuration file for the video processing
+        ├── slides.mkv           # Video file of the slides for this talk
+        ├── sound.mp3            # Audio file of the talk's sound
+        ├── speaker.mp4          # Video file of the speaker for this talk
 ```
 
 ### Files and Directories Explained
@@ -92,22 +99,14 @@ It uses conventions for the file names and locations. Necessary directory layout
   - **`sound.mp3`**: Audio file of the talk's sound.
   - **`speaker.mp4`**: Video file of the speaker's presentation.
 
-### Features
+---
 
-- Transition-fade between intro and main video
-- When capturing, you can start any time; all you have to provide is the start time of one video
-- Automatic adjustment of tracks based on media date metadata
-- `extra_offset` can be used to compensate for bad dates
+## Install
 
-### Intro
-
-Either provide a ready-made intro file or generate one automatically with:
-
-- Presentation title
-- Speaker name
-- Background
-- Logo
-- Jingle
+```sh
+pip3 install poetry
+poetry install
+```
 
 ---
 
@@ -135,8 +134,8 @@ to-proceed/
 │   ├── speaker.webp      # Speaker's image
 │   └── config.yml        # YAML configuration file with talk information
 └── ...
-
 ```
+
 ---
 
 ## Generate thumbnail
@@ -147,19 +146,17 @@ This script allows you to retrieve information from a HumanTalks event and gener
 poetry run python src/make_thumbnail.py ht template/ht/talk1/config.yml
 ```
 
-
 ---
 
-### Docker and Docker Compose (Volume Access)
+## Docker and Docker Compose (Volume Access)
 
 To set up your environment using Docker Compose, follow these steps:
 
-#### Prerequisites
+### Prerequisites
 
-Make sure you have **Docker** and **Docker Compose** installed on your machine. You can download and install them
-from [Docker](https://www.docker.com/get-started).
+Make sure you have **Docker** and **Docker Compose** installed on your machine. You can download and install them from [Docker](https://www.docker.com/get-started).
 
-#### Setting Up Your Environment
+### Setting Up Your Environment
 
 ```sh
 docker-compose build
@@ -167,7 +164,7 @@ docker-compose up -d
 docker-compose exec alpescraft-videos /bin/bash
 ```
 
-#### Generate a Test Video
+### Generate a Test Video
 
 Once inside the container, you can generate a test video by running:
 
@@ -175,7 +172,7 @@ Once inside the container, you can generate a test video by running:
 poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml 7 --no-intro
 ```
 
-#### Generate the Full Video
+### Generate the Full Video
 
 To generate the full video, run:
 
@@ -183,7 +180,7 @@ To generate the full video, run:
 poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml
 ```
 
-#### Docker Compose Cheat Sheet
+### Docker Compose Cheat Sheet
 
 | Command                             | Description                                        |
 |-------------------------------------|----------------------------------------------------|
@@ -196,10 +193,11 @@ poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml
 | `docker-compose build`              | Build or rebuild the images                        |
 | `docker-compose stop`               | Stop the services without removing the containers  |
 
+---
+
 ### Additional Tips
 
-- I used DaVinci Resolve to crop the video and flip it because the slides are on the right, and people tend to look on
-  the left.
+- I used DaVinci Resolve to crop the video and flip it because the slides are on the right, and people tend to look on the left.
 - Ensure all file paths and configurations are correct for successful video generation.
 
 ### References
