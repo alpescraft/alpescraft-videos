@@ -2,15 +2,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import yaml
 import textwrap
-
-# Define the file paths
-BACKGROUND_PATH = "template/ht/background"
-LOGO_PATH = "template/ht/logo-no-bg"
-FONT_PATH = "template/ht/Franklin Gothic Demi Cond Regular.ttf"
-
-CONFIG_PATH = "template/ht/talk1/config.yml"
-SPEAKER_IMAGE_PATH = "template/ht/talk1/speaker"
-THUMBNAIL_PATH = "template/ht/talk1/thumbnail.jpg"
+import typer
 
 # Define the supported image extensions
 IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp"]
@@ -99,41 +91,66 @@ def add_speaker_info(background, config, avatar, font_path, avatar_x, avatar_y, 
 
     return background
 
-def main():
-    config = load_config(CONFIG_PATH)
-    background = create_background(BACKGROUND_PATH)
+app = typer.Typer()
 
-    # Logo parameters
-    logo_x, logo_y = 65, 65
-    logo_width = 895
+@app.command()
+def generate_thumbnail(template: str, config: str):
+    """
+    Generate thumbnail for a talk.
 
-    # Title parameters
-    title_x, title_y = 110, 580
-    title_max_width, title_max_height = 1450, 400
-    title_font_size = 64  # You may want to adjust this based on the new dimensions
+    :param template: Template name (e.g., 'ht')
+    :param config: Path to the config file
+    """
+    try:
+        template_dir = os.path.join("template", template)
+        config_dir = os.path.dirname(config)
 
-    # Avatar parameters
-    avatar_size = 250
-    avatar_border_size = 8
-    avatar_x, avatar_y = 1440, 580
+        # Define the file paths
+        BACKGROUND_PATH = os.path.join(template_dir, "background")
+        LOGO_PATH = os.path.join(template_dir, "logo-no-bg")
+        FONT_PATH = os.path.join(template_dir, "Franklin Gothic Demi Cond Regular.ttf")
+        SPEAKER_IMAGE_PATH = os.path.join(config_dir, "speaker")
+        THUMBNAIL_PATH = os.path.join(config_dir, "thumbnail.jpg")
 
-    # Speaker name parameters
-    name_font_size = 36  # You may want to adjust this based on the new layout
-    name_y = 861
+        config_data = load_config(config)
+        background = create_background(BACKGROUND_PATH)
 
-    # Add the logo and title to the background
-    background, logo = add_logo(background, LOGO_PATH, logo_x, logo_y, logo_width)
-    background = add_title(background, config, FONT_PATH, title_x, title_y, title_max_width, title_max_height, title_font_size)
+        # Logo parameters
+        logo_x, logo_y = 65, 65
+        logo_width = 895
 
-    # Create the avatar
-    avatar = create_circular_avatar(SPEAKER_IMAGE_PATH, avatar_size, avatar_border_size)
+        # Title parameters
+        title_x, title_y = 110, 500
+        title_max_width, title_max_height = 1600, 400
+        title_font_size = 86  # You may want to adjust this based on the new dimensions
 
-    # Add speaker info (including the avatar and speaker name)
-    background = add_speaker_info(background, config, avatar, FONT_PATH, avatar_x, avatar_y, avatar_size, name_y, name_font_size)
+        # Avatar parameters
+        avatar_size = 300
+        avatar_border_size = 8
+        avatar_x, avatar_y = 1450, 420
 
-    # Convert the background to RGB and save it
-    background = background.convert("RGB")
-    background.save(THUMBNAIL_PATH)
+        # Speaker name parameters
+        name_font_size = 64  # You may want to adjust this based on the new layout
+        name_y = avatar_y + avatar_size + 24
+
+        background, logo = add_logo(background, LOGO_PATH, logo_x, logo_y, logo_width)
+        background = add_title(background, config_data, FONT_PATH, title_x, title_y, title_max_width, title_max_height, title_font_size)
+
+        # Create the avatar
+        avatar = create_circular_avatar(SPEAKER_IMAGE_PATH, avatar_size, avatar_border_size)
+
+        # Add speaker info (including the avatar and speaker name)
+        background = add_speaker_info(background, config_data, avatar, FONT_PATH, avatar_x, avatar_y, avatar_size, name_y, name_font_size)
+
+        # Convert the background to RGB and save it
+        background = background.convert("RGB")
+        background.save(THUMBNAIL_PATH)
+
+        typer.echo(f"Thumbnail generated successfully: {THUMBNAIL_PATH}")
+    except FileNotFoundError as e:
+        typer.echo(f"Error: {e}")
+    except Exception as e:
+        typer.echo(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
-    main()
+    app()
