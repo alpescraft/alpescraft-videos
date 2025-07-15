@@ -8,92 +8,95 @@ import shutil
 
 app = typer.Typer()
 
-# Fonction pour télécharger une image à partir d'une URL
 def download_image(url, folder, filename):
     try:
         response = requests.get(url, stream=True)
-        response.raise_for_status()  # Assurez-vous que la requête s'est terminée avec succès
+        response.raise_for_status()
         with open(os.path.join(folder, filename), 'wb') as file:
             shutil.copyfileobj(response.raw, file)
-        print(f"Image téléchargée: {url}")
-    except requests.HTTPError as e:
-        print(f"Erreur HTTP lors du téléchargement de l'image: {url} - {e}")
+        print(f"✅ Image téléchargée: {url}")
     except Exception as e:
-        print(f"Erreur lors du téléchargement de l'image: {url} - {e}")
+        print(f"❌ Erreur image: {url} - {e}")
 
-# Fonction pour récupérer les informations du talk et les images des speakers
 def fetch_talk_info(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Assurez-vous que la requête s'est terminée avec succès
-    except requests.HTTPError as e:
-        raise Exception(f"Échec de la récupération de la page web : {url} - {e}")
-
+    response = requests.get(url)
+    response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    # Récupération des talks
     talks_div = soup.select('div.talks')
     if not talks_div:
-        raise Exception("Impossible de trouver la section des talks sur la page.")
+        raise Exception("❌ Aucun bloc talks trouvé.")
 
     talks = talks_div[0].find_all('div', class_='talk')
-
     if not talks:
-        raise Exception("Aucun talk trouvé dans la section des talks.")
+        raise Exception("❌ Aucun talk trouvé.")
+
+    attendees_div = soup.select_one('div.attendees')
+    if not attendees_div:
+        raise Exception("❌ Aucun bloc attendees trouvé.")
+
+    # Liste des speakers (attendees)
+    attendee_divs = attendees_div.find_all('div', class_='attendee')
+    speakers_info = []
+    for attendee in attendee_divs:
+        name_tag = attendee.select_one('strong.name')
+        name = name_tag.get_text(strip=True) if name_tag else "Unknown"
+        img_tag = attendee.select_one('img')
+        img_url = urllib.parse.urljoin(url, img_tag['src']) if img_tag else ""
+        speakers_info.append({'name': name, 'img_url': img_url})
 
     talk_data = []
-    for i, talk in enumerate(talks, start=1):
-        title = talk.select_one('h4').get_text(strip=True)
-        speaker = talk.select_one('div > a').get_text(strip=True)
 
-        # Préparer le dossier pour ce talk
+    for i, talk in enumerate(talks, start=1):
+        # Titre
+        title = talk.select_one('h4').get_text(strip=True)
+
+        # Texte brut dans <a>
+        speaker_tag = talk.select_one('div > a')
+        if speaker_tag:
+            full_text = speaker_tag.get_text(strip=True)
+            # Enlever " le ..." s'il existe
+            if " le " in full_text:
+                speaker_name_in_talk = full_text.split(" le ")[0].strip()
+            else:
+                speaker_name_in_talk = full_text.strip()
+        else:
+            speaker_name_in_talk = f"Speaker {i}"
+
+        # Chercher le speaker correspondant
+        matched_speaker = next((s for s in speakers_info if s['name'] == speaker_name_in_talk), None)
+
+        if matched_speaker:
+            speaker_name = matched_speaker['name']
+            img_url = matched_speaker['img_url']
+        else:
+            speaker_name = speaker_name_in_talk
+            img_url = ""
+
+        # Créer dossier
         talk_folder = f'to-proceed/talk{i}'
-        if not os.path.exists(talk_folder):
-            os.makedirs(talk_folder)
+        os.makedirs(talk_folder, exist_ok=True)
+
+        if img_url:
+            download_image(img_url, talk_folder, 'img.png')
 
         talk_info = {
             'title': title,
-            'speaker_name': speaker,
+            'speaker_name': speaker_name,
         }
         talk_data.append(talk_info)
 
-    # Récupération des images des speakers
-    attendees_div = soup.select('div.attendees')
-    if not attendees_div:
-        raise Exception("Impossible de trouver la section des participants sur la page.")
-
-    attendee_images = attendees_div[0].find_all('div', class_='attendee')
-
-    for i, img_div in enumerate(attendee_images):
-        img_url = img_div.select_one('img')['src']
-        img_url = urllib.parse.urljoin(url, img_url)  # Assurez-vous que l'URL est absolue
-
-        if i < len(talk_data):
-            talk_folder = f'to-proceed/talk{i+1}'
-            img_filename = "speaker.webp"
-            download_image(img_url, talk_folder, img_filename)
-        else:
-            print(f"Aucune donnée de talk disponible pour l'image {i + 1}.")
-
     return talk_data
 
-# Fonction pour créer des fichiers YAML avec les informations des talks
 def create_yaml_files(talk_data):
-    if not os.path.exists('to-proceed'):
-        os.makedirs('to-proceed')
+    os.makedirs('to-proceed', exist_ok=True)
 
     for i, talk in enumerate(talk_data, start=1):
         talk_folder = f'to-proceed/talk{i}'
-
-        # Créer le fichier YAML
         yaml_content = {
             'title': talk['title'],
             'speaker_name': talk['speaker_name'],
-            'speaker': {
-                'parts': [
-                    {'start': '0:00', 'stop': '09:51'}
-                ]
-            },
+            'speaker': {'parts': [{'start': '0:00', 'stop': '09:51'}]},
             'sound': {'extra_offset': 0.0},
             'slides': {}
         }
@@ -101,16 +104,16 @@ def create_yaml_files(talk_data):
         yaml_file_path = os.path.join(talk_folder, 'config.yml')
         with open(yaml_file_path, 'w') as file:
             yaml.dump(yaml_content, file, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        print(f"✅ YAML: {yaml_file_path}")
 
-# Fonction principale pour gérer les arguments et lancer le script
 @app.command()
-def main(url: str = typer.Argument(..., help="L'URL complète de la page de l'événement")):
-    print(f"Récupération des informations pour l'événement : {url}")
+def main(url: str = typer.Argument(..., help="URL complète de l'événement")):
+    print(f"🚀 Traitement de: {url}")
 
-    # Exécution des fonctions
     talk_data = fetch_talk_info(url)
     create_yaml_files(talk_data)
-    print(f"Les informations des talks et les images ont été récupérées et sauvegardées dans 'to-proceed'.")
+
+    print("✅ Tout terminé.")
 
 if __name__ == "__main__":
     app()

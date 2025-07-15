@@ -109,7 +109,7 @@ def generate_thumbnail(template: str, config: str):
         BACKGROUND_PATH = os.path.join(template_dir, "background")
         LOGO_PATH = os.path.join(template_dir, "logo-no-bg")
         FONT_PATH = os.path.join(template_dir, "Franklin Gothic Demi Cond Regular.ttf")
-        SPEAKER_IMAGE_PATH = os.path.join(config_dir, "speaker")
+        SPEAKER_IMAGE_PATH = os.path.join(config_dir, "img")
         THUMBNAIL_PATH = os.path.join(config_dir, "thumbnail.jpg")
 
         config_data = load_config(config)
