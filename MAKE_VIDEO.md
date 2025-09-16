@@ -14,7 +14,7 @@ docker-compose exec alpescraft-videos /bin/bash
 ## Fetch Talk Info
 This will create a to-proceed folder with avatar and config.yml
 ```sh
-poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/764
+poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/1122
 ```
 Not needed anymore: Remove date in config.yml after the name
 
