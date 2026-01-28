@@ -6,6 +6,11 @@
 docker-compose build
 ```
 
+T'as vu mes slides ? Je les fais en typst ! Virginie Pageaud - 873 vues
+UV, la révolution pour Python Par Lenormand Julien 784 vues
+Découverte des serveurs MCP : discuter avec ses outils pour Matias Vara - 678 vues
+
+
 ```sh
 docker-compose up -d
 docker-compose exec alpescraft-videos /bin/bash
@@ -14,7 +19,7 @@ docker-compose exec alpescraft-videos /bin/bash
 ## Fetch Talk Info
 This will create a to-proceed folder with avatar and config.yml
 ```sh
-poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/1122
+poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/1123
 ```
 Not needed anymore: Remove date in config.yml after the name
 
@@ -24,11 +29,13 @@ Check the avatar of the speaker in case they used a different one than Gravatar
 
 
 ## Generate thumbnail
+```
 poetry run python src/make_thumbnail.py ht to-proceed/talk1/config.yml
 poetry run python src/make_thumbnail.py ht to-proceed/talk2/config.yml
 poetry run python src/make_thumbnail.py ht to-proceed/talk3/config.yml
 poetry run python src/make_thumbnail.py ht to-proceed/talk4/config.yml
 
+```
 ## Test generation
 poetry run python src/produce_video_v2.py ht template/ht/talk1/config.yml 7 --no-intro
 poetry run python src/produce_video_v2.py ht template/ht/talk2/config.yml 7 --no-intro
