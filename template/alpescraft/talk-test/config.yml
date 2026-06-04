@@ -1,0 +1,15 @@
+title: "talk-test"
+speaker_name: "Prenom Nom"
+
+speaker:
+  parts:
+    - start: "0:00"
+      stop: "09:51"
+
+
+sound:
+  extra_offset: 0.0
+
+
+
+slides:
