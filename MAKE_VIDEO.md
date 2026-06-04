@@ -6,11 +6,6 @@
 docker-compose build
 ```
 
-T'as vu mes slides ? Je les fais en typst ! Virginie Pageaud - 873 vues
-UV, la révolution pour Python Par Lenormand Julien 784 vues
-Découverte des serveurs MCP : discuter avec ses outils pour Matias Vara - 678 vues
-
-
 ```sh
 docker-compose up -d
 docker-compose exec alpescraft-videos /bin/bash
@@ -19,7 +14,7 @@ docker-compose exec alpescraft-videos /bin/bash
 ## Fetch Talk Info
 This will create a to-proceed folder with avatar and config.yml
 ```sh
-poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/1123
+poetry run python src/fetch_talk_info.py https://humantalks.com/cities/grenoble/events/122
 ```
 Not needed anymore: Remove date in config.yml after the name
 
