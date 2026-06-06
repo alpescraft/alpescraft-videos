@@ -10,6 +10,7 @@ from logic_v2.collate_video import (
     build_final_clip,
     GenerationPipeline,
     CompositeMainPartBuilder,
+    SingleClipMainPartBuilder,
     WithIntro,
     NoIntro,
     AlpesCraftConferenceTheme,
@@ -31,7 +32,7 @@ Prepare real video by cropping and concatenating successive videos
 
 
 def write_video(full_video, output_file):
-    full_video.write_videofile(output_file, fps=25, codec='libx264', threads=8)
+    full_video.write_videofile(output_file, fps=25, codec='libx264', audio_codec='aac', threads=8)
 
 
 def write_thumbnail(full_video, output_file, thumbnail_time):
@@ -45,7 +46,7 @@ def get_output_prefix(filename):
     return f"{video_dir}/{directory_name}"
 
 
-def create_pipeline(conference: str, option: str) -> GenerationPipeline:
+def create_pipeline(conference: str, option: str, video_info: PresentationInfo) -> GenerationPipeline:
     if conference == "ht":
         theme = HTConferenceTheme()
     elif conference == "alpescraft":
@@ -53,7 +54,7 @@ def create_pipeline(conference: str, option: str) -> GenerationPipeline:
     else:
         raise ValueError(f"Unknown conference: {conference}")
 
-    main_part = CompositeMainPartBuilder(theme=theme)
+    main_part = SingleClipMainPartBuilder() if video_info.slides is None else CompositeMainPartBuilder(theme=theme)
 
     if option == "video-nointro":
         return GenerationPipeline(main_part=main_part, intro=NoIntro())
@@ -78,7 +79,7 @@ def parse_commandline():
         raise ValueError("Unknown option argument")
 
     video_info = PresentationInfo.load_video_info(filename, max_length)
-    pipeline = create_pipeline(conference, option)
+    pipeline = create_pipeline(conference, option, video_info)
     return filename, video_info, pipeline, option
 
 

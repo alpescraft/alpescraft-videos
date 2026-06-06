@@ -136,18 +136,17 @@ class CompositeMainPartBuilder(MainPartBuilder):
         return video, audio
 
 
-@dataclass
 class SingleClipMainPartBuilder(MainPartBuilder):
     """OBS-merged clip: one video file carries both video and audio."""
-    video_file_path: str
-    audio_offset: float = 0.0
 
     def build(self, video_info: PresentationInfo) -> tuple[VideoClip, VideoClip]:
-        video_collage_info = VideoCollageInfo.from_video_info(video_info)
-        start, length = video_collage_info.get_start_length()
-        sound_file = ClipFile(file_name=self.video_file_path, extra_offset=self.audio_offset)
-        video = VideoFileClip(self.video_file_path).subclip(start, start + length)
-        audio = create_sound_clip(length, self.video_file_path, start, sound_file)
+        file_path = video_info.speaker.file_name
+        first_part = video_info.speaker.parts[0]
+        start = first_part.start_seconds()
+        length = first_part.stop_seconds() - start
+        raw = VideoFileClip(file_path).subclip(start, start + length)
+        video = CompositeVideoClip([raw], size=raw.size)
+        audio = create_sound_clip(length, file_path, start, video_info.sound)
         return video, audio
 
 

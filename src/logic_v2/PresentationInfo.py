@@ -41,7 +41,7 @@ class PresentationInfo:
 
     sound: ClipFile
 
-    slides: ClipFile
+    slides: Optional[ClipFile]
     background_image: str
 
 
@@ -50,29 +50,39 @@ class PresentationInfo:
 
         get_in_param1 = lambda k1: param[k1]
         def get_in_param(k1, k2):
-            if k1 not in param :
+            if k1 not in param:
                 return None
             elif param[k1] is None or k2 not in param[k1]:
                 return None
             else:
                 return param[k1][k2]
 
-        print(param, param["sound"])
-        parts_ = param["speaker"]["parts"]
-        parts = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in parts_]
+        common = dict(
+            title=param["title"],
+            jingle=get_in_param("conference", "jingle"),
+            logo=get_in_param("conference", "logo"),
+            background_image=get_in_param("conference", "background_image"),
+            speaker_name=param["speaker_name"],
+            speaker_image=get_in_param1("speaker_image"),
+        )
+
+        if param.get("slides_and_speaker_mounted"):
+            mounted = param["slides_and_speaker_mounted"]
+            parts = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in mounted["parts"]]
+            file_name = mounted["file_name"]
+            return PresentationInfo(
+                **common,
+                speaker=ReferenceFile(file_name=file_name, parts=parts),
+                sound=ClipFile(file_name=file_name, extra_offset=mounted.get("extra_offset", 0.0)),
+                slides=None,
+            )
+
+        parts = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in param["speaker"]["parts"]]
         sound = param["sound"]
         slides = param["slides"]
         return PresentationInfo(
-            title=param["title"],
-            jingle=get_in_param("conference","jingle"),
-            logo=get_in_param("conference","logo"),
-            background_image=get_in_param("conference","background_image"),
-            speaker_name=param["speaker_name"],
-            speaker_image=get_in_param1("speaker_image"),
-            speaker=ReferenceFile(
-                file_name=get_in_param("speaker","file_name"),
-                parts=parts
-            ),
+            **common,
+            speaker=ReferenceFile(file_name=get_in_param("speaker", "file_name"), parts=parts),
             sound=ClipFile(
                 file_name=get_in_param("sound", "file_name"),
                 extra_offset=PresentationInfo.get_extra_offset(sound)
@@ -80,7 +90,7 @@ class PresentationInfo:
             slides=ClipFile(
                 file_name=get_in_param("slides", "file_name"),
                 extra_offset=PresentationInfo.get_extra_offset(slides)
-            )
+            ),
         )
 
     @classmethod
@@ -126,6 +136,10 @@ class PresentationInfo:
         param = load(open(conf_path), yaml.Loader)
         if not param:
             raise ValueError("No data in the conf file: " + conf_path)
+        if param.get("slides_and_speaker_mounted") is not None:
+            mounted = param["slides_and_speaker_mounted"]
+            if not mounted.get("file_name"):
+                mounted["file_name"] = search_in_session_dir("speaker", MediaType.VIDEO)
         merged = recursive_merge(defaults, param)
         video_info = cls.from_dict(merged)
 
