@@ -7,7 +7,7 @@ def create_circular_mask(height, width):
 
     # Create a circular mask
     draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0, width, height), fill=(0,0, 0, 255))
+    draw.ellipse((0, 0, width, height), fill=(255, 255, 255, 255))
 
     # Save the mask to a file
     mask.save(f"circular-mask-{width}x{height}.png")

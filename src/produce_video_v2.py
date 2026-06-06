@@ -1,5 +1,7 @@
 import sys
 import typing
+import PIL.Image
+PIL.Image.ANTIALIAS = PIL.Image.LANCZOS  # moviepy 1.x / Pillow 10+ compatibility
 from abc import ABC
 from dataclasses import dataclass
 from os.path import dirname, basename

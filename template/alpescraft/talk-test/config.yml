@@ -8,8 +8,8 @@ speaker:
 
 
 sound:
+  file_name: "template/alpescraft/talk-test/speaker.mkv"
   extra_offset: 0.0
 
-
-
 slides:
+  file_name: "template/alpescraft/talk-test/speaker.mkv"

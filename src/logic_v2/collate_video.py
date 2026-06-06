@@ -55,56 +55,65 @@ class AlpesCraftConferenceTheme(ConferenceTheme):
     conference_title = "AlpesCraft"
     background_color = ALPESCRAFT_COLOR_DARK
     def create_intro_clip(self, video_info: PresentationInfo) -> VideoClip:
-        # Load the background image
         ALPESCRAFT_COLOR_LIGHT = (36, 75, 112)
+        TARGET_W, TARGET_H = 1920, 1080
 
+        # Background: cover-resize then center-crop to 1920x1080
         background_image = ImageClip(video_info.background_image)
+        bg_w, bg_h = background_image.size
+        scale = max(TARGET_W / bg_w, TARGET_H / bg_h)
+        background_image = resize.resize(background_image, scale)
+        background_image = crop.crop(background_image, width=TARGET_W, height=TARGET_H,
+                                     x_center=background_image.size[0] / 2,
+                                     y_center=background_image.size[1] / 2)
 
-        # Load and resize the logo
+        # Logo — larger size for intro (intentionally prominent in the bar)
         logo = ImageClip(video_info.logo)
         logo = resize.resize(logo, newsize=(200, 200))
-
-        # Load the presenter photo
-        presenter_photo = ImageClip(video_info.speaker_image)
-        presenter_photo = resize.resize(presenter_photo, newsize=(400, 400))
-        # Create a mask for the presenter photo to make it round
-        mask = ImageClip("./src/scripts/circular-mask-400x400.png", ismask=True)
-        presenter_photo: ImageClip = presenter_photo.set_mask(mask)
-
-        # Create a blue-colored bar
-        blue_bar = ColorClip((1920, 100), color=ALPESCRAFT_COLOR_LIGHT)
-        blue_bar = blue_bar.set_position(('center', 'bottom'))
-
-        # Position the elements on the screen
         logo = logo.set_position(('left', 'bottom'))
 
+        # Presenter photo clipped to a circle
+        presenter_photo = ImageClip(video_info.speaker_image)
+        presenter_photo = resize.resize(presenter_photo, newsize=(400, 400))
+        photo_mask = ImageClip("./src/scripts/circular-mask-400x400.png", ismask=True)
+        presenter_photo = presenter_photo.set_mask(photo_mask)
+
+        # Three-layer ring: black outer (430) → white inner (420) → photo (400)
+        black_ring = ColorClip((430, 430), color=(0, 0, 0))
+        black_ring = black_ring.set_mask(ImageClip("./src/scripts/circular-mask-430x430.png", ismask=True))
+
+        white_ring = ColorClip((420, 420), color=(255, 255, 255))
+        white_ring = white_ring.set_mask(ImageClip("./src/scripts/circular-mask-420x420.png", ismask=True))
+
         presenter_photo_with_frame = CompositeVideoClip([
-            ImageClip("./src/scripts/circular-mask-430x430.png").set_position(('center', 'center')),
-            ImageClip("./src/scripts/circular-mask-420x420.png").set_position(('center', 'center')),
-            presenter_photo.set_position(('center', 'center'))
-        ])
+            black_ring.set_position(('center', 'center')),
+            white_ring.set_position(('center', 'center')),
+            presenter_photo.set_position(('center', 'center')),
+        ], size=(430, 430))
         presenter_photo_with_frame = presenter_photo_with_frame.set_position(('center', 'center'))
-        # Create the session title text
-        # title = TextClip(video_info.title, fontsize=50, color='white')
+
+        # Bottom bar and title text
+        blue_bar = ColorClip((TARGET_W, 100), color=ALPESCRAFT_COLOR_LIGHT)
+        blue_bar = blue_bar.set_position(('center', 'bottom'))
+
         text_style = dict(color='white', stroke_color='grey', stroke_width=1)
         logo_width = 100
-        region = Region(logo_width, background_image.size[1] - 100, 1920 - logo_width, 100)
+        region = Region(logo_width, TARGET_H - 100, TARGET_W - logo_width, 100)
         title = create_centered_textclip_with_respect_to_region(region, video_info.title, text_style)
 
-        # Create a composite video clip
         intro_clip = CompositeVideoClip([
             background_image,
             blue_bar,
             logo,
             presenter_photo_with_frame,
-            title
-        ])
+            title,
+        ], size=(TARGET_W, TARGET_H))
 
         return intro_clip.set_duration(5)
 
     def make_right_size_logo_clip(self, logo_file_path):
-        logo_400x400 = ImageClip(logo_file_path)
-        return resize.resize(logo_400x400, .65)  # 260x260
+        logo = ImageClip(logo_file_path)
+        return resize.resize(logo, newsize=(120, 120))  # fits in 135px top band
 
 @dataclass
 class GenerationStrategy:
