@@ -70,10 +70,18 @@ class PresentationInfo:
             mounted = param["slides_and_speaker_mounted"]
             parts = [ClipSection.from_clip_spec(x["start"], x["stop"]) for x in mounted["parts"]]
             file_name = mounted["file_name"]
+            sound_section = param.get("sound")
+            if sound_section and sound_section.get("file_name"):
+                sound = ClipFile(
+                    file_name=sound_section["file_name"],
+                    extra_offset=PresentationInfo.get_extra_offset(sound_section),
+                )
+            else:
+                sound = ClipFile(file_name=file_name, extra_offset=mounted.get("extra_offset", 0.0))
             return PresentationInfo(
                 **common,
                 speaker=ReferenceFile(file_name=file_name, parts=parts),
-                sound=ClipFile(file_name=file_name, extra_offset=mounted.get("extra_offset", 0.0)),
+                sound=sound,
                 slides=None,
             )
 
@@ -141,6 +149,17 @@ class PresentationInfo:
             if not mounted.get("file_name"):
                 mounted["file_name"] = search_in_session_dir("speaker", MediaType.VIDEO)
         merged = recursive_merge(defaults, param)
+        section_media_types = {
+            "sound": MediaType.SOUND,
+            "speaker": MediaType.VIDEO,
+            "slides": MediaType.VIDEO,
+        }
+        for section, media_type in section_media_types.items():
+            if merged.get(section) and merged[section].get("file_name"):
+                fn = merged[section]["file_name"]
+                if fn and not os.path.dirname(fn):
+                    stem = os.path.splitext(fn)[0]
+                    merged[section]["file_name"] = search_in_session_dir(stem, media_type) or fn
         video_info = cls.from_dict(merged)
 
         video_info.speaker.parts[0].stop = cls.calculate_stop_position(video_info, max_length_seconds)

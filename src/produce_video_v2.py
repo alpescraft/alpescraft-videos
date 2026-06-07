@@ -54,7 +54,7 @@ def create_pipeline(conference: str, option: str, video_info: PresentationInfo) 
     else:
         raise ValueError(f"Unknown conference: {conference}")
 
-    main_part = SingleClipMainPartBuilder() if video_info.slides is None else CompositeMainPartBuilder(theme=theme)
+    main_part = SingleClipMainPartBuilder(theme=theme) if video_info.slides is None else CompositeMainPartBuilder(theme=theme)
 
     if option == "video-nointro":
         return GenerationPipeline(main_part=main_part, intro=NoIntro())

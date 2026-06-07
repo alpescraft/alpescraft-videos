@@ -136,8 +136,11 @@ class CompositeMainPartBuilder(MainPartBuilder):
         return video, audio
 
 
+@dataclass
 class SingleClipMainPartBuilder(MainPartBuilder):
     """OBS-merged clip: one video file carries both video and audio."""
+
+    theme: ConferenceTheme
 
     def build(self, video_info: PresentationInfo) -> tuple[VideoClip, VideoClip]:
         file_path = video_info.speaker.file_name
@@ -145,7 +148,8 @@ class SingleClipMainPartBuilder(MainPartBuilder):
         start = first_part.start_seconds()
         length = first_part.stop_seconds() - start
         raw = VideoFileClip(file_path).subclip(start, start + length)
-        video = CompositeVideoClip([raw], size=raw.size)
+        base = CompositeVideoClip([raw], size=raw.size)
+        video = _apply_conference_overlays(base, length, video_info, self.theme)
         audio = create_sound_clip(length, file_path, start, video_info.sound)
         return video, audio
 
@@ -268,6 +272,44 @@ def compose_main_video(length, presentation_clip, slides_clip, target_resolution
         fade_in_and_cut_to_length(title_clip, length, 1),
     ]
     return CompositeVideoClip(presentation_clips, size=target_resolution).subclip(0, length)
+
+
+def _apply_conference_overlays(clip: VideoClip, length: float, video_info: PresentationInfo,
+                               theme: ConferenceTheme) -> VideoClip:
+    w, h = clip.size
+    left_quarter_width = w * .25
+    upper_band_height = h * .125
+
+    top_band = ColorClip((w, int(upper_band_height)), color=theme.background_color).set_position((0, 0))
+    bottom_band = ColorClip((w, int(upper_band_height)), color=theme.background_color) \
+        .set_position((0, h - int(upper_band_height)))
+
+    right_size_clip = theme.make_right_size_logo_clip(video_info.logo)
+    logo_region = Region(0, 0, left_quarter_width, upper_band_height)
+    logo_clip = right_size_clip.set_position(logo_region.calculate_center(*right_size_clip.size))
+
+    text_style = dict(color='white', stroke_color='grey', stroke_width=0)
+
+    region = Region(left_quarter_width, 0, w * .75, upper_band_height)
+    location_clip = create_centered_textclip_with_respect_to_region(region, theme.conference_title, text_style)
+
+    region = Region(0, h * .875, left_quarter_width, upper_band_height)
+    presenter_name_clip = create_centered_textclip_with_respect_to_region_multiline(region, video_info.speaker_name,
+                                                                                    text_style)
+
+    region = Region(left_quarter_width, h * .875, w * .75, upper_band_height)
+    title_clip = create_centered_textclip_with_respect_to_region(region, video_info.title, text_style)
+
+    overlays = [
+        clip,
+        top_band,
+        bottom_band,
+        logo_clip,
+        location_clip,
+        fade_in_and_cut_to_length(presenter_name_clip, length, 1),
+        fade_in_and_cut_to_length(title_clip, length, 1),
+    ]
+    return CompositeVideoClip(overlays, size=(w, h)).subclip(0, length)
 
 
 def _blend_intro_and_main_clip(fade_duration, intro, intro_duration, presentation_composition):

@@ -6,3 +6,7 @@ slides_and_speaker_mounted:
     - start: "1:01"
       stop: "43:57"
   extra_offset: 0.0
+
+sound:
+  file_name: "pascal_sound.mkv"
+  extra_offset: 728.5
